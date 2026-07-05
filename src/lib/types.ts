@@ -62,3 +62,30 @@ export type FunctionAccess = {
   access_level: FunctionAccessLevel;
   updated_at: string;
 };
+
+export type RoutineCadence = "daily" | "weekly";
+
+export type Routine = {
+  id: string;
+  user_id: string;
+  name: string;
+  cadence: RoutineCadence;
+  created_at: string;
+};
+
+export type RoutineStep = {
+  id: string;
+  user_id: string;
+  routine_id: string;
+  label: string;
+  sort_order: number;
+  created_at: string;
+};
+
+export type RoutineCompletion = {
+  id: string;
+  user_id: string;
+  routine_step_id: string;
+  cycle_date: string;
+  completed_at: string;
+};

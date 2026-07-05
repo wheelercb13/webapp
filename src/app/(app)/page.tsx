@@ -1,8 +1,17 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Task, TaskPriority, TaskWithDomain } from "@/lib/types";
+import type {
+  Task,
+  TaskPriority,
+  TaskWithDomain,
+  Routine,
+  RoutineStep,
+  RoutineCompletion,
+} from "@/lib/types";
 import { DOMAIN_COLOR_CLASSES } from "@/lib/colors";
 import { todayString } from "@/lib/date";
+import { computeStreak, currentCycleDate } from "@/lib/routines";
 import { toggleTaskStatus } from "@/app/(app)/tasks/actions";
+import { StepCheckbox } from "@/app/(app)/routines/steps/step-checkbox";
 
 type TaskRow = Task & { domains: { name: string; color: TaskWithDomain["domain_color"] } | null };
 
@@ -11,6 +20,50 @@ const PRIORITY_WEIGHT: Record<TaskPriority, number> = { high: 0, med: 1, low: 2 
 export default async function TodayPage() {
   const supabase = await createClient();
   const today = todayString();
+
+  const { data: routinesData } = (await supabase
+    .from("routines")
+    .select("*")
+    .order("name")) as { data: Routine[] | null };
+  const routines = routinesData ?? [];
+
+  const { data: stepsData } =
+    routines.length > 0
+      ? ((await supabase
+          .from("routine_steps")
+          .select("*")
+          .in(
+            "routine_id",
+            routines.map((r) => r.id)
+          )
+          .order("sort_order", { ascending: true })) as { data: RoutineStep[] | null })
+      : { data: [] as RoutineStep[] };
+  const steps = stepsData ?? [];
+
+  const { data: completionsData } =
+    steps.length > 0
+      ? ((await supabase
+          .from("routine_completions")
+          .select("*")
+          .in(
+            "routine_step_id",
+            steps.map((s) => s.id)
+          )) as { data: RoutineCompletion[] | null })
+      : { data: [] as RoutineCompletion[] };
+
+  const completionsByStep = new Map<string, Set<string>>();
+  for (const completion of completionsData ?? []) {
+    const set = completionsByStep.get(completion.routine_step_id) ?? new Set();
+    set.add(completion.cycle_date);
+    completionsByStep.set(completion.routine_step_id, set);
+  }
+
+  const stepsByRoutine = new Map<string, RoutineStep[]>();
+  for (const step of steps) {
+    const list = stepsByRoutine.get(step.routine_id) ?? [];
+    list.push(step);
+    stepsByRoutine.set(step.routine_id, list);
+  }
 
   const { data } = (await supabase
     .from("tasks")
@@ -39,6 +92,38 @@ export default async function TodayPage() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
       <h1 className="text-xl font-semibold text-black dark:text-zinc-50">Today</h1>
+
+      {routines.length > 0 && (
+        <div className="flex flex-col gap-4">
+          {routines.map((routine) => (
+            <div key={routine.id} className="flex flex-col gap-2">
+              <h2 className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                {routine.name}
+              </h2>
+              <ul className="flex flex-col gap-2">
+                {(stepsByRoutine.get(routine.id) ?? []).map((step) => {
+                  const completions = completionsByStep.get(step.id) ?? new Set<string>();
+                  const cycleDate = currentCycleDate(routine.cadence);
+                  const checked = completions.has(cycleDate);
+                  const streak = computeStreak(routine.cadence, completions);
+                  return (
+                    <li key={step.id}>
+                      <StepCheckbox
+                        routineId={routine.id}
+                        stepId={step.id}
+                        cadence={routine.cadence}
+                        label={step.label}
+                        checked={checked}
+                        streak={streak}
+                      />
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
 
       <ul className="flex flex-col gap-2">
         {tasks.map((task) => {
