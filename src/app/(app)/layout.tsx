@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { logout } from "@/app/actions";
 import { FUNCTION_ROUTES } from "@/lib/access";
 import type { FunctionAccess } from "@/lib/types";
+import { BackButton } from "@/components/back-button";
 
 export default async function AppLayout({
   children,
@@ -32,20 +33,23 @@ export default async function AppLayout({
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
-      <header className="flex items-center justify-end gap-3 border-b border-black/10 px-6 py-3 dark:border-white/10">
-        {user && (
-          <span className="text-sm text-zinc-600 dark:text-zinc-400">
-            {user.user_metadata?.name || user.email}
-          </span>
-        )}
-        <form action={logout}>
-          <button
-            type="submit"
-            className="rounded-full border border-black/10 px-4 py-1.5 text-sm font-medium text-black transition-colors hover:bg-black/[.04] dark:border-white/10 dark:text-zinc-50 dark:hover:bg-white/[.06]"
-          >
-            Log out
-          </button>
-        </form>
+      <header className="flex items-center gap-3 border-b border-black/10 px-6 py-3 dark:border-white/10">
+        <BackButton />
+        <div className="ml-auto flex items-center gap-3">
+          {user && (
+            <span className="text-sm text-zinc-600 dark:text-zinc-400">
+              {user.user_metadata?.name || user.email}
+            </span>
+          )}
+          <form action={logout}>
+            <button
+              type="submit"
+              className="rounded-full border border-black/10 px-4 py-1.5 text-sm font-medium text-black transition-colors hover:bg-black/[.04] dark:border-white/10 dark:text-zinc-50 dark:hover:bg-white/[.06]"
+            >
+              Log out
+            </button>
+          </form>
+        </div>
       </header>
 
       <main className="flex flex-1 flex-col pb-20">{children}</main>
