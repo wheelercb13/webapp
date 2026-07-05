@@ -11,6 +11,7 @@ export function StepCheckbox({
   label,
   checked,
   streak,
+  allowUncheck = true,
 }: {
   routineId: string;
   stepId: string;
@@ -18,6 +19,7 @@ export function StepCheckbox({
   label: string;
   checked: boolean;
   streak: number;
+  allowUncheck?: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
 
@@ -27,13 +29,15 @@ export function StepCheckbox({
     });
   }
 
+  const locked = checked && !allowUncheck;
+
   return (
     <label className="flex items-center justify-between gap-3 rounded-lg border border-black/10 px-4 py-3 dark:border-white/10">
       <span className="flex items-center gap-3">
         <input
           type="checkbox"
           checked={checked}
-          disabled={isPending}
+          disabled={isPending || locked}
           onChange={handleChange}
           className="h-4 w-4"
         />

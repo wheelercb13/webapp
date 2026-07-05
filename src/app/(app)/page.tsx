@@ -115,6 +115,7 @@ export default async function TodayPage() {
                         label={step.label}
                         checked={checked}
                         streak={streak}
+                        allowUncheck={false}
                       />
                     </li>
                   );

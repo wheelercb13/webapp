@@ -52,9 +52,9 @@ export default async function AppLayout({
         </div>
       </header>
 
-      <main className="flex flex-1 flex-col pb-20">{children}</main>
+      <main className="flex flex-1 flex-col pb-24">{children}</main>
 
-      <nav className="fixed inset-x-0 bottom-0 z-10 flex justify-around border-t border-black/10 bg-zinc-50 py-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] dark:border-white/10 dark:bg-black">
+      <nav className="fixed inset-x-0 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-10 mx-3 flex justify-around rounded-xl border border-black/10 bg-zinc-50 py-2 shadow-sm dark:border-white/10 dark:bg-black">
         <Link
           href="/"
           className="rounded-lg px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:text-zinc-50 dark:hover:bg-white/[.06]"
