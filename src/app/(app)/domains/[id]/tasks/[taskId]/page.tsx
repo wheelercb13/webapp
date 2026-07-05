@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Task } from "@/lib/types";
+import { describeRepeatRule } from "@/lib/recurrence";
 import { toggleTaskStatus, deleteTask } from "@/app/(app)/tasks/actions";
 
 export default async function TaskDetailPage({
@@ -34,11 +35,22 @@ export default async function TaskDetailPage({
       <div className="flex flex-col gap-2 rounded-lg border border-black/10 p-4 text-sm text-zinc-600 dark:border-white/10 dark:text-zinc-400">
         <p>{task.due_date ? `Due ${task.due_date}` : "No due date"}</p>
         <p>Priority: {task.priority}</p>
+        {task.repeat_unit && (
+          <p>
+            Repeats:{" "}
+            {describeRepeatRule({
+              unit: task.repeat_unit,
+              interval: task.repeat_interval,
+              weekdays: task.repeat_weekdays,
+            })}
+            {task.repeat_until ? ` until ${task.repeat_until}` : " (never ends)"}
+          </p>
+        )}
         {task.notes && <p>Notes: {task.notes}</p>}
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <form action={toggleTaskStatus.bind(null, domainId, task.id, task.status)}>
+        <form action={toggleTaskStatus.bind(null, domainId, task.id)}>
           <button
             type="submit"
             className="rounded-full border border-black/10 px-4 py-1.5 text-sm font-medium text-black hover:bg-black/[.04] dark:border-white/10 dark:text-zinc-50 dark:hover:bg-white/[.06]"

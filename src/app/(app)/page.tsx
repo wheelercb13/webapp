@@ -10,6 +10,7 @@ import type {
 import { DOMAIN_COLOR_CLASSES } from "@/lib/colors";
 import { todayString } from "@/lib/date";
 import { computeStreak, currentCycleDate } from "@/lib/routines";
+import { describeRepeatRule } from "@/lib/recurrence";
 import { toggleTaskStatus } from "@/app/(app)/tasks/actions";
 import { StepCheckbox } from "@/app/(app)/routines/steps/step-checkbox";
 
@@ -148,12 +149,16 @@ export default async function TodayPage() {
                         : `Due ${task.due_date}`
                       : "No due date"}{" "}
                     · {task.priority}
+                    {task.repeat_unit &&
+                      ` · ${describeRepeatRule({
+                        unit: task.repeat_unit,
+                        interval: task.repeat_interval,
+                        weekdays: task.repeat_weekdays,
+                      })}`}
                   </span>
                 </div>
               </div>
-              <form
-                action={toggleTaskStatus.bind(null, task.domain_id, task.id, task.status)}
-              >
+              <form action={toggleTaskStatus.bind(null, task.domain_id, task.id)}>
                 <button
                   type="submit"
                   className="rounded-full border border-black/10 px-3 py-1 text-xs font-medium text-black hover:bg-black/[.04] dark:border-white/10 dark:text-zinc-50 dark:hover:bg-white/[.06]"

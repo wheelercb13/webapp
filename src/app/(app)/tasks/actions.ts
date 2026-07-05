@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { TaskPriority, TaskStatus } from "@/lib/types";
+import { nextOccurrence } from "@/lib/recurrence";
+import type { RepeatUnit } from "@/lib/recurrence";
+import type { TaskPriority } from "@/lib/types";
 
 function revalidateTaskPaths(domainId: string, taskId?: string) {
   revalidatePath("/");
@@ -15,6 +17,33 @@ function revalidateTaskPaths(domainId: string, taskId?: string) {
 }
 
 export type TaskFormState = { error?: string } | undefined;
+
+function parseRepeatFields(formData: FormData, due_date: string | null) {
+  const repeatUnitRaw = (formData.get("repeatUnit") as string) || "";
+  const repeat_unit = (repeatUnitRaw || null) as RepeatUnit | null;
+
+  if (!repeat_unit) {
+    return { repeat_unit: null, repeat_interval: 1, repeat_weekdays: null, repeat_until: null };
+  }
+
+  if (!due_date) {
+    return { error: "Due date is required for repeating tasks." } as const;
+  }
+
+  const repeat_interval = Math.max(
+    1,
+    parseInt(formData.get("repeatInterval") as string, 10) || 1
+  );
+  const repeat_weekdays =
+    repeat_unit === "week"
+      ? formData.getAll("repeatWeekday").map((v) => Number(v))
+      : null;
+  const repeatEnds = formData.get("repeatEnds") as string;
+  const repeat_until =
+    repeatEnds === "on" ? (formData.get("repeatUntil") as string) || null : null;
+
+  return { repeat_unit, repeat_interval, repeat_weekdays, repeat_until };
+}
 
 export async function createTask(
   domainId: string,
@@ -30,6 +59,11 @@ export async function createTask(
     return { error: "Title is required." };
   }
 
+  const repeatFields = parseRepeatFields(formData, due_date);
+  if ("error" in repeatFields) {
+    return { error: repeatFields.error };
+  }
+
   const supabase = await createClient();
   const { error } = await supabase.from("tasks").insert({
     domain_id: domainId,
@@ -37,6 +71,7 @@ export async function createTask(
     notes,
     due_date,
     priority,
+    ...repeatFields,
   });
 
   if (error) {
@@ -62,10 +97,15 @@ export async function updateTask(
     return { error: "Title is required." };
   }
 
+  const repeatFields = parseRepeatFields(formData, due_date);
+  if ("error" in repeatFields) {
+    return { error: repeatFields.error };
+  }
+
   const supabase = await createClient();
   const { error } = await supabase
     .from("tasks")
-    .update({ title, notes, due_date, priority })
+    .update({ title, notes, due_date, priority, ...repeatFields })
     .eq("id", taskId);
 
   if (error) {
@@ -76,14 +116,36 @@ export async function updateTask(
   redirect(`/domains/${domainId}/tasks/${taskId}`, "replace");
 }
 
-export async function toggleTaskStatus(
-  domainId: string,
-  taskId: string,
-  currentStatus: TaskStatus
-) {
-  const nextStatus: TaskStatus = currentStatus === "open" ? "done" : "open";
+export async function toggleTaskStatus(domainId: string, taskId: string) {
   const supabase = await createClient();
-  await supabase.from("tasks").update({ status: nextStatus }).eq("id", taskId);
+  const { data: task } = await supabase
+    .from("tasks")
+    .select("*")
+    .eq("id", taskId)
+    .single();
+
+  if (!task) {
+    return;
+  }
+
+  if (task.status === "open") {
+    if (task.repeat_unit && task.due_date) {
+      const next = nextOccurrence(task.due_date, {
+        unit: task.repeat_unit,
+        interval: task.repeat_interval,
+        weekdays: task.repeat_weekdays,
+      });
+      if (!task.repeat_until || next <= task.repeat_until) {
+        await supabase.from("tasks").update({ due_date: next }).eq("id", taskId);
+        revalidateTaskPaths(domainId, taskId);
+        return;
+      }
+    }
+    await supabase.from("tasks").update({ status: "done" }).eq("id", taskId);
+  } else {
+    await supabase.from("tasks").update({ status: "open" }).eq("id", taskId);
+  }
+
   revalidateTaskPaths(domainId, taskId);
 }
 

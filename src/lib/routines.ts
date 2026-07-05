@@ -1,14 +1,5 @@
-import { APP_TIMEZONE, todayString } from "./date";
+import { APP_TIMEZONE, todayString, toUtcDate, toDateString } from "./date";
 import type { RoutineCadence } from "./types";
-
-function toUtcDate(dateString: string): Date {
-  const [y, m, d] = dateString.split("-").map(Number);
-  return new Date(Date.UTC(y, m - 1, d));
-}
-
-function toDateString(date: Date): string {
-  return date.toISOString().slice(0, 10);
-}
 
 // Monday-anchored week, computed in the app's fixed timezone.
 function currentWeekStart(timeZone: string = APP_TIMEZONE): string {

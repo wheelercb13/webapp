@@ -1,3 +1,5 @@
+import type { RepeatUnit } from "./recurrence";
+
 export type DomainColor =
   | "red"
   | "orange"
@@ -47,6 +49,10 @@ export type Task = {
   source: TaskSource;
   created_at: string;
   updated_at: string;
+  repeat_unit: RepeatUnit | null;
+  repeat_interval: number;
+  repeat_weekdays: number[] | null;
+  repeat_until: string | null;
 };
 
 export type TaskWithDomain = Task & {
