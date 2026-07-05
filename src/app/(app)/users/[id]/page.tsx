@@ -23,6 +23,7 @@ export default async function EditUserPage({
     data: { user: currentUser },
   } = await supabase.auth.getUser();
   const isCurrentUser = currentUser?.id === id;
+  const canManageAdmin = !!currentUser?.app_metadata?.is_admin;
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
@@ -34,6 +35,8 @@ export default async function EditUserPage({
           action={updateUser.bind(null, id)}
           initialEmail={data.user.email}
           initialName={data.user.user_metadata?.name}
+          initialIsAdmin={!!data.user.app_metadata?.is_admin}
+          canManageAdmin={canManageAdmin}
           passwordRequired={false}
           submitLabel="Save"
         />

@@ -8,12 +8,16 @@ export function UserForm({
   action,
   initialEmail,
   initialName,
+  initialIsAdmin,
+  canManageAdmin,
   passwordRequired,
   submitLabel,
 }: {
   action: (state: UserFormState, formData: FormData) => Promise<UserFormState>;
   initialEmail?: string;
   initialName?: string;
+  initialIsAdmin?: boolean;
+  canManageAdmin?: boolean;
   passwordRequired: boolean;
   submitLabel: string;
 }) {
@@ -61,6 +65,17 @@ export function UserForm({
         required={passwordRequired}
         placeholder={passwordRequired ? undefined : "Leave blank to keep current password"}
       />
+      {canManageAdmin && (
+        <label className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+          <input
+            type="checkbox"
+            name="isAdmin"
+            defaultChecked={initialIsAdmin}
+            className="h-4 w-4"
+          />
+          Admin access
+        </label>
+      )}
       <button
         type="submit"
         disabled={pending}

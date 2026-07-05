@@ -53,3 +53,12 @@ export type TaskWithDomain = Task & {
   domain_name: Domain["name"];
   domain_color: Domain["color"];
 };
+
+export type FunctionAccessLevel = "general" | "admin";
+
+export type FunctionAccess = {
+  key: string;
+  label: string;
+  access_level: FunctionAccessLevel;
+  updated_at: string;
+};

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { logout } from "@/app/actions";
+import { FUNCTION_ROUTES } from "@/lib/access";
+import type { FunctionAccess } from "@/lib/types";
 
 export default async function AppLayout({
   children,
@@ -11,6 +13,22 @@ export default async function AppLayout({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  const isAdmin = !!user?.app_metadata?.is_admin;
+
+  let accessByKey: Record<string, FunctionAccess> = {};
+  if (!isAdmin) {
+    const { data } = (await supabase.from("functions").select("*")) as {
+      data: FunctionAccess[] | null;
+    };
+    accessByKey = Object.fromEntries((data ?? []).map((f) => [f.key, f]));
+  }
+
+  function canAccess(routePrefix: string) {
+    if (isAdmin) return true;
+    const key = FUNCTION_ROUTES[routePrefix];
+    return accessByKey[key]?.access_level === "general";
+  }
 
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
@@ -39,18 +57,30 @@ export default async function AppLayout({
         >
           Today
         </Link>
-        <Link
-          href="/domains"
-          className="rounded-lg px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:text-zinc-50 dark:hover:bg-white/[.06]"
-        >
-          Domains
-        </Link>
-        <Link
-          href="/users"
-          className="rounded-lg px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:text-zinc-50 dark:hover:bg-white/[.06]"
-        >
-          Users
-        </Link>
+        {canAccess("/domains") && (
+          <Link
+            href="/domains"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:text-zinc-50 dark:hover:bg-white/[.06]"
+          >
+            Domains
+          </Link>
+        )}
+        {canAccess("/users") && (
+          <Link
+            href="/users"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:text-zinc-50 dark:hover:bg-white/[.06]"
+          >
+            Users
+          </Link>
+        )}
+        {isAdmin && (
+          <Link
+            href="/system"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:text-zinc-50 dark:hover:bg-white/[.06]"
+          >
+            System
+          </Link>
+        )}
       </nav>
     </div>
   );

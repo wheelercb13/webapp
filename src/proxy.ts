@@ -1,7 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { FUNCTION_ROUTES } from "@/lib/access";
 
 const publicPaths = ["/login"];
+
+function matchesPrefix(pathname: string, prefix: string) {
+  return pathname === prefix || pathname.startsWith(`${prefix}/`);
+}
 
 export default async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -43,6 +48,34 @@ export default async function proxy(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
     return NextResponse.redirect(url);
+  }
+
+  if (user && !user.app_metadata?.is_admin) {
+    const pathname = request.nextUrl.pathname;
+
+    if (matchesPrefix(pathname, "/system")) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      return NextResponse.redirect(url);
+    }
+
+    const matchedPrefix = Object.keys(FUNCTION_ROUTES).find((prefix) =>
+      matchesPrefix(pathname, prefix)
+    );
+
+    if (matchedPrefix) {
+      const { data } = await supabase
+        .from("functions")
+        .select("access_level")
+        .eq("key", FUNCTION_ROUTES[matchedPrefix])
+        .single();
+
+      if (data?.access_level === "admin") {
+        const url = request.nextUrl.clone();
+        url.pathname = "/";
+        return NextResponse.redirect(url);
+      }
+    }
   }
 
   response.headers.set("Cache-Control", "private, no-store");
