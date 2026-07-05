@@ -69,6 +69,14 @@ export default async function AppLayout({
             Routines
           </Link>
         )}
+        {canAccess("/inbox") && (
+          <Link
+            href="/inbox"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:text-zinc-50 dark:hover:bg-white/[.06]"
+          >
+            Inbox
+          </Link>
+        )}
         {canAccess("/domains") && (
           <Link
             href="/domains"

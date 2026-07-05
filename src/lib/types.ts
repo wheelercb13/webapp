@@ -95,3 +95,14 @@ export type RoutineCompletion = {
   cycle_date: string;
   completed_at: string;
 };
+
+export type InboxResolution = "task" | "idea" | "note";
+
+export type InboxItem = {
+  id: string;
+  user_id: string;
+  raw_text: string;
+  captured_at: string;
+  resolved: boolean;
+  resolved_into: InboxResolution | null;
+};
