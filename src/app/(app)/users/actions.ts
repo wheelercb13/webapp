@@ -10,11 +10,12 @@ export async function createUser(
   _state: UserFormState,
   formData: FormData
 ): Promise<UserFormState> {
+  const name = (formData.get("name") as string)?.trim();
   const email = (formData.get("email") as string)?.trim();
   const password = formData.get("password") as string;
 
-  if (!email || !password) {
-    return { error: "Email and password are required." };
+  if (!name || !email || !password) {
+    return { error: "Name, email, and password are required." };
   }
 
   const admin = createAdminClient();
@@ -22,6 +23,7 @@ export async function createUser(
     email,
     password,
     email_confirm: true,
+    user_metadata: { name },
   });
 
   if (error) {
@@ -37,16 +39,18 @@ export async function updateUser(
   _state: UserFormState,
   formData: FormData
 ): Promise<UserFormState> {
+  const name = (formData.get("name") as string)?.trim();
   const email = (formData.get("email") as string)?.trim();
   const password = (formData.get("password") as string) || undefined;
 
-  if (!email) {
-    return { error: "Email is required." };
+  if (!name || !email) {
+    return { error: "Name and email are required." };
   }
 
   const admin = createAdminClient();
   const { error } = await admin.auth.admin.updateUserById(userId, {
     email,
+    user_metadata: { name },
     ...(password ? { password } : {}),
   });
 

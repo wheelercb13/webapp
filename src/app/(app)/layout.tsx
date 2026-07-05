@@ -15,9 +15,9 @@ export default async function AppLayout({
   return (
     <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
       <header className="flex items-center justify-end gap-3 border-b border-black/10 px-6 py-3 dark:border-white/10">
-        {user?.email && (
+        {user && (
           <span className="text-sm text-zinc-600 dark:text-zinc-400">
-            {user.email}
+            {user.user_metadata?.name || user.email}
           </span>
         )}
         <form action={logout}>

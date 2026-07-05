@@ -6,11 +6,13 @@ import type { UserFormState } from "./actions";
 export function UserForm({
   action,
   initialEmail,
+  initialName,
   passwordRequired,
   submitLabel,
 }: {
   action: (state: UserFormState, formData: FormData) => Promise<UserFormState>;
   initialEmail?: string;
+  initialName?: string;
   passwordRequired: boolean;
   submitLabel: string;
 }) {
@@ -19,6 +21,18 @@ export function UserForm({
 
   return (
     <form action={formAction} className="flex flex-col gap-3">
+      <div className="flex flex-col gap-1">
+        <label htmlFor={`${id}-name`} className="text-sm text-zinc-600 dark:text-zinc-400">
+          Name
+        </label>
+        <input
+          id={`${id}-name`}
+          name="name"
+          required
+          defaultValue={initialName}
+          className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+        />
+      </div>
       <div className="flex flex-col gap-1">
         <label htmlFor={`${id}-email`} className="text-sm text-zinc-600 dark:text-zinc-400">
           Email
