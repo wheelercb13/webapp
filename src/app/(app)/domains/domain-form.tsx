@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useId } from "react";
 import { DOMAIN_COLORS, type Domain } from "@/lib/types";
 import type { DomainFormState } from "./actions";
 
@@ -14,15 +14,16 @@ export function DomainForm({
   submitLabel: string;
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
+  const id = useId();
 
   return (
     <form action={formAction} className="flex flex-wrap items-end gap-3">
       <div className="flex flex-col gap-1">
-        <label htmlFor="name" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor={`${id}-name`} className="text-sm text-zinc-600 dark:text-zinc-400">
           Name
         </label>
         <input
-          id="name"
+          id={`${id}-name`}
           name="name"
           required
           defaultValue={initial?.name}
@@ -30,11 +31,11 @@ export function DomainForm({
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor="color" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor={`${id}-color`} className="text-sm text-zinc-600 dark:text-zinc-400">
           Color
         </label>
         <select
-          id="color"
+          id={`${id}-color`}
           name="color"
           defaultValue={initial?.color ?? DOMAIN_COLORS[0]}
           className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"

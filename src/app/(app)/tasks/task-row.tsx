@@ -15,6 +15,7 @@ export function TaskRow({ task }: { task: Task }) {
           action={updateTask.bind(null, task.domain_id, task.id)}
           initial={task}
           submitLabel="Save"
+          onSuccess={() => setEditing(false)}
         />
         <button
           type="button"

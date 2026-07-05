@@ -10,7 +10,7 @@ function revalidateTaskPaths(domainId: string) {
   revalidatePath(`/domains/${domainId}`);
 }
 
-export type TaskFormState = { error?: string } | undefined;
+export type TaskFormState = { error?: string; success?: boolean } | undefined;
 
 export async function createTask(
   domainId: string,
@@ -40,6 +40,7 @@ export async function createTask(
   }
 
   revalidateTaskPaths(domainId);
+  return { success: true };
 }
 
 export async function updateTask(
@@ -68,6 +69,7 @@ export async function updateTask(
   }
 
   revalidateTaskPaths(domainId);
+  return { success: true };
 }
 
 export async function toggleTaskStatus(

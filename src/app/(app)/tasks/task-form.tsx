@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useId } from "react";
 import type { Task } from "@/lib/types";
 import type { TaskFormState } from "./actions";
 
@@ -8,21 +8,30 @@ export function TaskForm({
   action,
   initial,
   submitLabel,
+  onSuccess,
 }: {
   action: (state: TaskFormState, formData: FormData) => Promise<TaskFormState>;
   initial?: Pick<Task, "title" | "notes" | "due_date" | "priority">;
   submitLabel: string;
+  onSuccess?: () => void;
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
+  const id = useId();
+
+  useEffect(() => {
+    if (state?.success) {
+      onSuccess?.();
+    }
+  }, [state, onSuccess]);
 
   return (
     <form action={formAction} className="flex flex-wrap items-end gap-3">
       <div className="flex flex-col gap-1">
-        <label htmlFor="title" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor={`${id}-title`} className="text-sm text-zinc-600 dark:text-zinc-400">
           Title
         </label>
         <input
-          id="title"
+          id={`${id}-title`}
           name="title"
           required
           defaultValue={initial?.title}
@@ -30,22 +39,22 @@ export function TaskForm({
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor="notes" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor={`${id}-notes`} className="text-sm text-zinc-600 dark:text-zinc-400">
           Notes
         </label>
         <input
-          id="notes"
+          id={`${id}-notes`}
           name="notes"
           defaultValue={initial?.notes ?? undefined}
           className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor="due_date" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor={`${id}-due_date`} className="text-sm text-zinc-600 dark:text-zinc-400">
           Due date
         </label>
         <input
-          id="due_date"
+          id={`${id}-due_date`}
           name="due_date"
           type="date"
           defaultValue={initial?.due_date ?? undefined}
@@ -53,11 +62,11 @@ export function TaskForm({
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor="priority" className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor={`${id}-priority`} className="text-sm text-zinc-600 dark:text-zinc-400">
           Priority
         </label>
         <select
-          id="priority"
+          id={`${id}-priority`}
           name="priority"
           defaultValue={initial?.priority ?? "med"}
           className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
