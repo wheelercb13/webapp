@@ -19,5 +19,5 @@ export async function login(
     return { error: error.message };
   }
 
-  redirect("/");
+  redirect("/", "replace");
 }

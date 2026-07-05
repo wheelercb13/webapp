@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Task } from "@/lib/types";
 import { updateTask } from "@/app/(app)/tasks/actions";
@@ -20,7 +20,7 @@ export default async function EditTaskPage({
     .single()) as { data: Task | null };
 
   if (!task) {
-    notFound();
+    redirect(`/domains/${domainId}`);
   }
 
   return (

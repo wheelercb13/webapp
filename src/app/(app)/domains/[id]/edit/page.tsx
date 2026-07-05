@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Domain } from "@/lib/types";
 import { updateDomain, deleteDomain } from "../../actions";
@@ -19,7 +19,7 @@ export default async function EditDomainPage({
     .single()) as { data: Domain | null };
 
   if (!domain) {
-    notFound();
+    redirect("/domains");
   }
 
   return (

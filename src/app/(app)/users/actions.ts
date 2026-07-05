@@ -53,7 +53,7 @@ export async function createUser(
   }
 
   revalidatePath("/users");
-  redirect("/users");
+  redirect("/users", "replace");
 }
 
 export async function updateUser(
@@ -102,7 +102,7 @@ export async function updateUser(
   }
 
   revalidatePath("/users");
-  redirect("/users");
+  redirect("/users", "replace");
 }
 
 export async function deleteUser(userId: string): Promise<UserFormState> {
@@ -130,5 +130,5 @@ export async function deleteUser(userId: string): Promise<UserFormState> {
   }
 
   revalidatePath("/users");
-  redirect("/users");
+  redirect("/users", "replace");
 }

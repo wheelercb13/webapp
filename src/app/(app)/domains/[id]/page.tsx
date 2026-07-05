@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Domain, Task } from "@/lib/types";
 import { DOMAIN_COLOR_CLASSES } from "@/lib/colors";
@@ -20,7 +20,7 @@ export default async function DomainDetailPage({
     .single()) as { data: Domain | null };
 
   if (!domain) {
-    notFound();
+    redirect("/domains");
   }
 
   const { data: tasksData } = (await supabase

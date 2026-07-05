@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { updateUser } from "../actions";
@@ -15,7 +15,7 @@ export default async function EditUserPage({
   const { data } = await admin.auth.admin.getUserById(id);
 
   if (!data?.user) {
-    notFound();
+    redirect("/users");
   }
 
   const supabase = await createClient();

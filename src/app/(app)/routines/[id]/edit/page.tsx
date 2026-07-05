@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Routine } from "@/lib/types";
 import { updateRoutine, deleteRoutine } from "../../actions";
@@ -19,7 +19,7 @@ export default async function EditRoutinePage({
     .single()) as { data: Routine | null };
 
   if (!routine) {
-    notFound();
+    redirect("/routines");
   }
 
   return (

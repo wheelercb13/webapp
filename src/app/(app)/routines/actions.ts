@@ -34,7 +34,7 @@ export async function createRoutine(
 
   revalidatePath("/routines");
   revalidatePath("/");
-  redirect(`/routines/${data.id}`);
+  redirect(`/routines/${data.id}`, "replace");
 }
 
 export async function updateRoutine(
@@ -65,7 +65,7 @@ export async function updateRoutine(
   revalidatePath("/routines");
   revalidatePath(`/routines/${routineId}`);
   revalidatePath("/");
-  redirect(`/routines/${routineId}`);
+  redirect(`/routines/${routineId}`, "replace");
 }
 
 export async function deleteRoutine(routineId: string) {
@@ -73,5 +73,5 @@ export async function deleteRoutine(routineId: string) {
   await supabase.from("routines").delete().eq("id", routineId);
   revalidatePath("/routines");
   revalidatePath("/");
-  redirect("/routines");
+  redirect("/routines", "replace");
 }

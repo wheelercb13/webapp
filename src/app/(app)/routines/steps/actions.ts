@@ -35,7 +35,7 @@ export async function createStep(
   }
 
   revalidateRoutinePaths(routineId);
-  redirect(`/routines/${routineId}`);
+  redirect(`/routines/${routineId}`, "replace");
 }
 
 export async function updateStep(
@@ -61,14 +61,14 @@ export async function updateStep(
   }
 
   revalidateRoutinePaths(routineId);
-  redirect(`/routines/${routineId}`);
+  redirect(`/routines/${routineId}`, "replace");
 }
 
 export async function deleteStep(routineId: string, stepId: string) {
   const supabase = await createClient();
   await supabase.from("routine_steps").delete().eq("id", stepId);
   revalidateRoutinePaths(routineId);
-  redirect(`/routines/${routineId}`);
+  redirect(`/routines/${routineId}`, "replace");
 }
 
 export async function toggleStepCompletion(

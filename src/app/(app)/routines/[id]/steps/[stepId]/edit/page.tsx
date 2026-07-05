@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { RoutineStep } from "@/lib/types";
 import { updateStep, deleteStep } from "@/app/(app)/routines/steps/actions";
@@ -20,7 +20,7 @@ export default async function EditStepPage({
     .single()) as { data: RoutineStep | null };
 
   if (!step) {
-    notFound();
+    redirect(`/routines/${routineId}`);
   }
 
   return (

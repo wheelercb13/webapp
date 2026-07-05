@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Task } from "@/lib/types";
 import { toggleTaskStatus, deleteTask } from "@/app/(app)/tasks/actions";
@@ -20,7 +20,7 @@ export default async function TaskDetailPage({
     .single()) as { data: Task | null };
 
   if (!task) {
-    notFound();
+    redirect(`/domains/${domainId}`);
   }
 
   return (

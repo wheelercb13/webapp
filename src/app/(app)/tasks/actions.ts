@@ -44,7 +44,7 @@ export async function createTask(
   }
 
   revalidateTaskPaths(domainId);
-  redirect(`/domains/${domainId}`);
+  redirect(`/domains/${domainId}`, "replace");
 }
 
 export async function updateTask(
@@ -73,7 +73,7 @@ export async function updateTask(
   }
 
   revalidateTaskPaths(domainId, taskId);
-  redirect(`/domains/${domainId}/tasks/${taskId}`);
+  redirect(`/domains/${domainId}/tasks/${taskId}`, "replace");
 }
 
 export async function toggleTaskStatus(
@@ -91,5 +91,5 @@ export async function deleteTask(domainId: string, taskId: string) {
   const supabase = await createClient();
   await supabase.from("tasks").delete().eq("id", taskId);
   revalidateTaskPaths(domainId, taskId);
-  redirect(`/domains/${domainId}`);
+  redirect(`/domains/${domainId}`, "replace");
 }

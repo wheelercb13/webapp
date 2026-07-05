@@ -29,7 +29,7 @@ export async function createDomain(
   }
 
   revalidatePath("/domains");
-  redirect("/domains");
+  redirect("/domains", "replace");
 }
 
 export async function updateDomain(
@@ -60,7 +60,7 @@ export async function updateDomain(
   revalidatePath("/domains");
   revalidatePath(`/domains/${domainId}`);
   revalidatePath("/");
-  redirect(`/domains/${domainId}`);
+  redirect(`/domains/${domainId}`, "replace");
 }
 
 export async function deleteDomain(domainId: string) {
@@ -68,5 +68,5 @@ export async function deleteDomain(domainId: string) {
   await supabase.from("domains").delete().eq("id", domainId);
   revalidatePath("/domains");
   revalidatePath("/");
-  redirect("/domains");
+  redirect("/domains", "replace");
 }

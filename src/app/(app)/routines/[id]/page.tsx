@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Routine, RoutineStep, RoutineCompletion } from "@/lib/types";
 import { computeStreak, currentCycleDate } from "@/lib/routines";
@@ -20,7 +20,7 @@ export default async function RoutineDetailPage({
     .single()) as { data: Routine | null };
 
   if (!routine) {
-    notFound();
+    redirect("/routines");
   }
 
   const { data: stepsData } = (await supabase
