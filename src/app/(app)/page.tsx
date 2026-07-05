@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type {
   Task,
@@ -11,6 +12,7 @@ import { DOMAIN_COLOR_CLASSES } from "@/lib/colors";
 import { todayString } from "@/lib/date";
 import { computeStreak, currentCycleDate } from "@/lib/routines";
 import { describeRepeatRule } from "@/lib/recurrence";
+import { slippingCutoffIso, daysSince } from "@/lib/slipping";
 import { toggleTaskStatus } from "@/app/(app)/tasks/actions";
 import { StepCheckbox } from "@/app/(app)/routines/steps/step-checkbox";
 
@@ -90,6 +92,22 @@ export default async function TodayPage() {
     return a.created_at < b.created_at ? -1 : a.created_at > b.created_at ? 1 : 0;
   });
 
+  const { data: slippingData } = (await supabase
+    .from("tasks")
+    .select("*, domains(name, color)")
+    .eq("status", "open")
+    .lt("updated_at", slippingCutoffIso())) as { data: TaskRow[] | null };
+
+  const slippingTasks = (slippingData ?? [])
+    .filter((t) => t.domains !== null)
+    .map((t) => ({
+      ...t,
+      domain_name: t.domains!.name,
+      domain_color: t.domains!.color,
+    })) as TaskWithDomain[];
+
+  slippingTasks.sort((a, b) => (a.updated_at < b.updated_at ? -1 : 1));
+
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
       <h1 className="text-xl font-semibold text-black dark:text-zinc-50">Today</h1>
@@ -124,6 +142,33 @@ export default async function TodayPage() {
               </ul>
             </div>
           ))}
+        </div>
+      )}
+
+      {slippingTasks.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <h2 className="text-sm font-medium text-amber-600 dark:text-amber-400">
+            Slipping
+          </h2>
+          <ul className="flex flex-col gap-2">
+            {slippingTasks.map((task) => (
+              <Link
+                key={task.id}
+                href={`/domains/${task.domain_id}/tasks/${task.id}`}
+                className="flex items-center gap-3 rounded-lg border border-amber-600/30 px-4 py-3 hover:bg-amber-600/5 dark:border-amber-400/30"
+              >
+                <span
+                  className={`h-2.5 w-2.5 shrink-0 rounded-full ${DOMAIN_COLOR_CLASSES[task.domain_color]}`}
+                />
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-black dark:text-zinc-50">{task.title}</span>
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {task.domain_name} · No update in {daysSince(task.updated_at)} days
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </ul>
         </div>
       )}
 
