@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useId } from "react";
+import { PasswordInput } from "@/components/password-input";
 import type { UserFormState } from "./actions";
 
 export function UserForm({
@@ -46,19 +47,20 @@ export function UserForm({
           className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
         />
       </div>
-      <div className="flex flex-col gap-1">
-        <label htmlFor={`${id}-password`} className="text-sm text-zinc-600 dark:text-zinc-400">
-          {passwordRequired ? "Password" : "New password"}
-        </label>
-        <input
-          id={`${id}-password`}
-          name="password"
-          type="password"
-          required={passwordRequired}
-          placeholder={passwordRequired ? undefined : "Leave blank to keep current password"}
-          className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
-        />
-      </div>
+      <PasswordInput
+        id={`${id}-password`}
+        name="password"
+        label={passwordRequired ? "Password" : "New password"}
+        required={passwordRequired}
+        placeholder={passwordRequired ? undefined : "Leave blank to keep current password"}
+      />
+      <PasswordInput
+        id={`${id}-confirm-password`}
+        name="confirmPassword"
+        label="Confirm password"
+        required={passwordRequired}
+        placeholder={passwordRequired ? undefined : "Leave blank to keep current password"}
+      />
       <button
         type="submit"
         disabled={pending}

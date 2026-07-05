@@ -13,9 +13,13 @@ export async function createUser(
   const name = (formData.get("name") as string)?.trim();
   const email = (formData.get("email") as string)?.trim();
   const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
 
   if (!name || !email || !password) {
     return { error: "Name, email, and password are required." };
+  }
+  if (password !== confirmPassword) {
+    return { error: "Passwords do not match. Try again." };
   }
 
   const admin = createAdminClient();
@@ -42,9 +46,13 @@ export async function updateUser(
   const name = (formData.get("name") as string)?.trim();
   const email = (formData.get("email") as string)?.trim();
   const password = (formData.get("password") as string) || undefined;
+  const confirmPassword = (formData.get("confirmPassword") as string) || undefined;
 
   if (!name || !email) {
     return { error: "Name and email are required." };
+  }
+  if (password && password !== confirmPassword) {
+    return { error: "Passwords do not match. Try again." };
   }
 
   const admin = createAdminClient();

@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { login } from "./actions";
+import { PasswordInput } from "@/components/password-input";
 
 export default function LoginPage() {
   const [state, formAction, pending] = useActionState(login, undefined);
@@ -27,18 +28,7 @@ export default function LoginPage() {
             className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
           />
         </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="password" className="text-sm text-zinc-600 dark:text-zinc-400">
-            Password
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            required
-            className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
-          />
-        </div>
+        <PasswordInput id="password" name="password" label="Password" required />
         {state?.error && (
           <p className="text-sm text-red-600 dark:text-red-400">{state.error}</p>
         )}
