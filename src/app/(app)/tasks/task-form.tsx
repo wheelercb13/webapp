@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useId } from "react";
+import { useActionState, useId } from "react";
 import type { Task } from "@/lib/types";
 import type { TaskFormState } from "./actions";
 
@@ -8,21 +8,13 @@ export function TaskForm({
   action,
   initial,
   submitLabel,
-  onSuccess,
 }: {
   action: (state: TaskFormState, formData: FormData) => Promise<TaskFormState>;
   initial?: Pick<Task, "title" | "notes" | "due_date" | "priority">;
   submitLabel: string;
-  onSuccess?: () => void;
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
   const id = useId();
-
-  useEffect(() => {
-    if (state?.success) {
-      onSuccess?.();
-    }
-  }, [state, onSuccess]);
 
   return (
     <form action={formAction} className="flex flex-wrap items-end gap-3">

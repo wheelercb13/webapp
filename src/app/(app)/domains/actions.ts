@@ -23,12 +23,13 @@ export async function createDomain(
 
   if (error) {
     if (error.code === "23505") {
-      return { error: "You already have a domain with that name." };
+      return { error: "A domain with that name already exists." };
     }
     return { error: error.message };
   }
 
   revalidatePath("/domains");
+  redirect("/domains");
 }
 
 export async function updateDomain(
@@ -51,7 +52,7 @@ export async function updateDomain(
 
   if (error) {
     if (error.code === "23505") {
-      return { error: "You already have a domain with that name." };
+      return { error: "A domain with that name already exists." };
     }
     return { error: error.message };
   }
@@ -59,6 +60,7 @@ export async function updateDomain(
   revalidatePath("/domains");
   revalidatePath(`/domains/${domainId}`);
   revalidatePath("/");
+  redirect(`/domains/${domainId}`);
 }
 
 export async function deleteDomain(domainId: string) {

@@ -1,16 +1,20 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { TaskPriority, TaskStatus } from "@/lib/types";
 
-function revalidateTaskPaths(domainId: string) {
+function revalidateTaskPaths(domainId: string, taskId?: string) {
   revalidatePath("/");
   revalidatePath("/domains");
   revalidatePath(`/domains/${domainId}`);
+  if (taskId) {
+    revalidatePath(`/domains/${domainId}/tasks/${taskId}`);
+  }
 }
 
-export type TaskFormState = { error?: string; success?: boolean } | undefined;
+export type TaskFormState = { error?: string } | undefined;
 
 export async function createTask(
   domainId: string,
@@ -40,7 +44,7 @@ export async function createTask(
   }
 
   revalidateTaskPaths(domainId);
-  return { success: true };
+  redirect(`/domains/${domainId}`);
 }
 
 export async function updateTask(
@@ -68,8 +72,8 @@ export async function updateTask(
     return { error: error.message };
   }
 
-  revalidateTaskPaths(domainId);
-  return { success: true };
+  revalidateTaskPaths(domainId, taskId);
+  redirect(`/domains/${domainId}/tasks/${taskId}`);
 }
 
 export async function toggleTaskStatus(
@@ -80,11 +84,12 @@ export async function toggleTaskStatus(
   const nextStatus: TaskStatus = currentStatus === "open" ? "done" : "open";
   const supabase = await createClient();
   await supabase.from("tasks").update({ status: nextStatus }).eq("id", taskId);
-  revalidateTaskPaths(domainId);
+  revalidateTaskPaths(domainId, taskId);
 }
 
 export async function deleteTask(domainId: string, taskId: string) {
   const supabase = await createClient();
   await supabase.from("tasks").delete().eq("id", taskId);
-  revalidateTaskPaths(domainId);
+  revalidateTaskPaths(domainId, taskId);
+  redirect(`/domains/${domainId}`);
 }

@@ -2,26 +2,28 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { Domain } from "@/lib/types";
 import { DOMAIN_COLOR_CLASSES } from "@/lib/colors";
-import { createDomain } from "./actions";
-import { DomainForm } from "./domain-form";
 
 export default async function DomainsPage() {
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data } = (await supabase
     .from("domains")
     .select("*")
-    .order("name") as { data: Domain[] | null };
+    .order("name")) as { data: Domain[] | null };
 
   const domains = data ?? [];
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
-      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">
-        Domains
-      </h1>
-
-      <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
-        <DomainForm action={createDomain} submitLabel="Add domain" />
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold text-black dark:text-zinc-50">
+          Domains
+        </h1>
+        <Link
+          href="/domains/new"
+          className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
+        >
+          Create New
+        </Link>
       </div>
 
       <ul className="flex flex-col gap-2">
@@ -40,7 +42,7 @@ export default async function DomainsPage() {
         ))}
         {domains.length === 0 && (
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            No domains yet — add one above.
+            No domains yet — tap Create New above.
           </p>
         )}
       </ul>
