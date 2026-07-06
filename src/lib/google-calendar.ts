@@ -91,6 +91,7 @@ export async function refreshAccessToken(refreshToken: string): Promise<Refreshe
 export type GoogleCalendarListEntry = {
   id: string;
   summary?: string;
+  backgroundColor?: string;
 };
 
 export async function listCalendars(accessToken: string): Promise<GoogleCalendarListEntry[]> {

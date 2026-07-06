@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { logout } from "@/app/actions";
 import { FUNCTION_ROUTES } from "@/lib/access";
 import type { FunctionAccess } from "@/lib/types";
 import { BackButton } from "@/components/back-button";
+import { BottomNav } from "@/components/bottom-nav";
 
 export default async function AppLayout({
   children,
@@ -31,20 +31,30 @@ export default async function AppLayout({
     return accessByKey[key]?.access_level === "general";
   }
 
+  const navItems = [
+    { href: "/", label: "Today" },
+    ...(canAccess("/inbox") ? [{ href: "/inbox", label: "Inbox" }] : []),
+    ...(canAccess("/ideas") ? [{ href: "/ideas", label: "Ideas" }] : []),
+    ...(canAccess("/domains") ? [{ href: "/domains", label: "Domains" }] : []),
+    ...(canAccess("/routines") ? [{ href: "/routines", label: "Routines" }] : []),
+    ...(canAccess("/library") ? [{ href: "/library", label: "Library" }] : []),
+    ...(isAdmin ? [{ href: "/settings", label: "Settings" }] : []),
+  ];
+
   return (
-    <div className="flex flex-1 flex-col bg-zinc-50 dark:bg-black">
-      <header className="flex items-center gap-3 border-b border-black/10 px-6 py-3 dark:border-white/10">
+    <div className="flex flex-1 flex-col bg-background">
+      <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-hairline bg-background/[.86] px-[22px] py-4 backdrop-blur-md">
         <BackButton />
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-3.5">
           {user && (
-            <span className="text-sm text-zinc-600 dark:text-zinc-400">
+            <span className="text-[10.5px] font-semibold uppercase tracking-[0.09em] text-muted">
               {user.user_metadata?.name || user.email}
             </span>
           )}
           <form action={logout}>
             <button
               type="submit"
-              className="rounded-full border border-black/10 px-4 py-1.5 text-sm font-medium text-black transition-colors hover:bg-black/[.04] dark:border-white/10 dark:text-zinc-50 dark:hover:bg-white/[.06]"
+              className="rounded-full border border-button-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
             >
               Log out
             </button>
@@ -52,64 +62,9 @@ export default async function AppLayout({
         </div>
       </header>
 
-      <main className="flex flex-1 flex-col pb-24">{children}</main>
+      <main className="flex flex-1 flex-col pb-[130px]">{children}</main>
 
-      <nav className="fixed inset-x-0 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-10 mx-3 flex justify-around rounded-xl border border-black/10 bg-zinc-50 py-2 shadow-sm dark:border-white/10 dark:bg-black">
-        <Link
-          href="/"
-          className="rounded-lg px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:text-zinc-50 dark:hover:bg-white/[.06]"
-        >
-          Today
-        </Link>
-        {canAccess("/inbox") && (
-          <Link
-            href="/inbox"
-            className="rounded-lg px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:text-zinc-50 dark:hover:bg-white/[.06]"
-          >
-            Inbox
-          </Link>
-        )}
-        {canAccess("/ideas") && (
-          <Link
-            href="/ideas"
-            className="rounded-lg px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:text-zinc-50 dark:hover:bg-white/[.06]"
-          >
-            Ideas
-          </Link>
-        )}
-        {canAccess("/domains") && (
-          <Link
-            href="/domains"
-            className="rounded-lg px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:text-zinc-50 dark:hover:bg-white/[.06]"
-          >
-            Domains
-          </Link>
-        )}
-        {canAccess("/routines") && (
-          <Link
-            href="/routines"
-            className="rounded-lg px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:text-zinc-50 dark:hover:bg-white/[.06]"
-          >
-            Routines
-          </Link>
-        )}
-        {canAccess("/library") && (
-          <Link
-            href="/library"
-            className="rounded-lg px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:text-zinc-50 dark:hover:bg-white/[.06]"
-          >
-            Library
-          </Link>
-        )}
-        {isAdmin && (
-          <Link
-            href="/settings"
-            className="rounded-lg px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:text-zinc-50 dark:hover:bg-white/[.06]"
-          >
-            Settings
-          </Link>
-        )}
-      </nav>
+      <BottomNav items={navItems} />
     </div>
   );
 }

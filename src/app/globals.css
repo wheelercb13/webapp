@@ -1,26 +1,56 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #141210;
+  --foreground: #e6e1d7;
+  --foreground-display: #f4efe6;
+  --muted: #8f887b;
+  --faint: #6b655b;
+  --disabled-line: #7a746a;
+  --accent: #c8a35e;
+  --hairline: rgba(236, 231, 221, 0.09);
+  --card-border: rgba(236, 231, 221, 0.12);
+  --button-border: rgba(236, 231, 221, 0.16);
+  --slipping-border: rgba(185, 138, 62, 0.32);
+  --slipping-fill: rgba(185, 138, 62, 0.04);
+  --slipping-label: #b98a3e;
+  --delete-border: rgba(210, 90, 70, 0.34);
+  --delete-text: #d97a63;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-foreground-display: var(--foreground-display);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-disabled-line: var(--disabled-line);
+  --color-accent: var(--accent);
+  --color-hairline: var(--hairline);
+  --color-card-border: var(--card-border);
+  --color-button-border: var(--button-border);
+  --color-slipping-border: var(--slipping-border);
+  --color-slipping-fill: var(--slipping-fill);
+  --color-slipping-label: var(--slipping-label);
+  --color-delete-border: var(--delete-border);
+  --color-delete-text: var(--delete-text);
+  --font-sans: var(--font-hanken);
+  --font-serif: var(--font-newsreader);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+::selection {
+  background: rgba(200, 163, 94, 0.28);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--faint);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }

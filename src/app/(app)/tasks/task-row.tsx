@@ -5,17 +5,16 @@ import { toggleTaskStatus } from "./actions";
 
 export function TaskRow({ task }: { task: Task }) {
   return (
-    <li className="flex items-center justify-between gap-3 rounded-lg border border-black/10 px-4 py-3 dark:border-white/10">
-      <Link
-        href={`/domains/${task.domain_id}/tasks/${task.id}`}
-        className="flex flex-1 flex-col gap-0.5"
-      >
-        <span
-          className={`text-black dark:text-zinc-50 ${task.status === "done" ? "line-through opacity-60" : ""}`}
+    <div className="flex items-start justify-between gap-3 rounded-[10px] border border-card-border px-[15px] py-3.5">
+      <Link href={`/domains/${task.domain_id}/tasks/${task.id}`} className="min-w-0 flex-1">
+        <div
+          className={`mb-[3px] text-[15px] ${
+            task.status === "done" ? "text-disabled-line line-through" : "text-foreground"
+          }`}
         >
           {task.title}
-        </span>
-        <span className="text-xs text-zinc-500 dark:text-zinc-400">
+        </div>
+        <div className="text-[12px] leading-[1.4] text-muted">
           {task.due_date ? `Due ${task.due_date}` : "No due date"} · {task.priority}
           {task.repeat_unit &&
             ` · ${describeRepeatRule({
@@ -23,18 +22,18 @@ export function TaskRow({ task }: { task: Task }) {
               interval: task.repeat_interval,
               weekdays: task.repeat_weekdays,
             })}`}
-        </span>
+        </div>
       </Link>
       {task.status === "open" && (
         <form action={toggleTaskStatus.bind(null, task.domain_id, task.id)}>
           <button
             type="submit"
-            className="rounded-full border border-black/10 px-3 py-1 text-xs font-medium text-black hover:bg-black/[.04] dark:border-white/10 dark:text-zinc-50 dark:hover:bg-white/[.06]"
+            className="shrink-0 rounded-full border border-button-border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
           >
             Done
           </button>
         </form>
       )}
-    </li>
+    </div>
   );
 }

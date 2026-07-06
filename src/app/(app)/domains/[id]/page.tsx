@@ -69,7 +69,7 @@ export default async function DomainDetailPage({
 
       <div className="flex flex-col gap-2">
         <h2 className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Active</h2>
-        <ul className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2">
           {activeTasks.map((task) => (
             <TaskRow key={task.id} task={task} />
           ))}
@@ -78,17 +78,17 @@ export default async function DomainDetailPage({
               No active tasks in this domain.
             </p>
           )}
-        </ul>
+        </div>
       </div>
 
       {completedTasks.length > 0 && (
         <div className="flex flex-col gap-2">
           <h2 className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Completed</h2>
-          <ul className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2">
             {completedTasks.map((task) => (
               <TaskRow key={task.id} task={task} />
             ))}
-          </ul>
+          </div>
         </div>
       )}
     </div>

@@ -14,29 +14,27 @@ export function CaptureForm() {
   }, [state]);
 
   return (
-    <form ref={formRef} action={formAction} className="flex items-end gap-3">
-      <div className="flex flex-1 flex-col gap-1">
-        <label htmlFor="raw_text" className="text-sm text-zinc-600 dark:text-zinc-400">
-          Capture
+    <form ref={formRef} action={formAction} className="flex w-full flex-col gap-2">
+      <div className="flex items-center gap-2.5">
+        <label htmlFor="raw_text" className="sr-only">
+          Capture a thought
         </label>
         <input
           id="raw_text"
           name="raw_text"
           required
-          placeholder="Type anything..."
-          className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+          placeholder="Capture a thought…"
+          className="flex-1 bg-transparent text-[15px] text-foreground outline-none"
         />
+        <button
+          type="submit"
+          disabled={pending}
+          className="shrink-0 rounded-full bg-accent px-4 py-2 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
+          {pending ? "Saving…" : "Capture"}
+        </button>
       </div>
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition-colors hover:bg-[#383838] disabled:opacity-50 dark:hover:bg-[#ccc]"
-      >
-        {pending ? "Saving…" : "Capture"}
-      </button>
-      {state?.error && (
-        <p className="w-full text-sm text-red-600 dark:text-red-400">{state.error}</p>
-      )}
+      {state?.error && <p className="text-sm text-red-400">{state.error}</p>}
     </form>
   );
 }

@@ -23,6 +23,8 @@ import {
   type GoogleCalendarEvent,
 } from "@/lib/google-calendar";
 
+type CalendarEventWithColor = GoogleCalendarEvent & { calendarColor: string };
+
 function formatEventTime(dateTime: string): string {
   return new Intl.DateTimeFormat("en-US", {
     timeZone: APP_TIMEZONE,
@@ -50,10 +52,17 @@ export default async function TodayPage() {
   const supabase = await createClient();
   const today = todayString();
 
+  const todayLabel = new Intl.DateTimeFormat("en-US", {
+    timeZone: APP_TIMEZONE,
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  }).format(new Date());
+
   const { data: routinesData } = (await supabase
     .from("routines")
     .select("*")
-    .order("name")) as { data: Routine[] | null };
+    .order("sort_order")) as { data: Routine[] | null };
   const routines = routinesData ?? [];
 
   const { data: stepsData } =
@@ -144,7 +153,7 @@ export default async function TodayPage() {
     .eq("user_id", user?.id ?? "")
     .maybeSingle()) as { data: CalendarConnection | null };
 
-  let calendarEvents: GoogleCalendarEvent[] = [];
+  let calendarEvents: CalendarEventWithColor[] = [];
   if (calendarConnection) {
     let accessToken = calendarConnection.access_token;
     const expiryMs = calendarConnection.token_expiry
@@ -166,9 +175,18 @@ export default async function TodayPage() {
     try {
       const calendars = await listCalendars(accessToken!);
       const eventsPerCalendar = await Promise.all(
-        calendars.map((cal) =>
-          listEvents(accessToken!, cal.id, startOfDay.toISOString(), startOfNextDay.toISOString())
-        )
+        calendars.map(async (cal) => {
+          const events = await listEvents(
+            accessToken!,
+            cal.id,
+            startOfDay.toISOString(),
+            startOfNextDay.toISOString()
+          );
+          return events.map((e) => ({
+            ...e,
+            calendarColor: cal.backgroundColor ?? "#8f887b",
+          }));
+        })
       );
       calendarEvents = eventsPerCalendar
         .flat()
@@ -184,140 +202,151 @@ export default async function TodayPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
-      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">Today</h1>
-
-      {calendarEvents.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <h2 className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-            Calendar
-          </h2>
-          <ul className="flex flex-col gap-2">
-            {calendarEvents.map((event) => (
-              <li
-                key={event.id}
-                className="flex items-center justify-between gap-3 rounded-lg border border-black/10 px-4 py-3 dark:border-white/10"
-              >
-                <span className="text-black dark:text-zinc-50">
-                  {event.summary || "(No title)"}
-                </span>
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                  {formatEventTimeRange(event)}
-                </span>
-              </li>
-            ))}
-          </ul>
+    <div className="mx-auto flex w-full max-w-[468px] flex-col px-[22px]">
+      <div className="pb-[30px] pt-9">
+        <div className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
+          Today
         </div>
-      )}
-
-      {routines.length > 0 && (
-        <div className="flex flex-col gap-4">
-          {routines.map((routine) => (
-            <div key={routine.id} className="flex flex-col gap-2">
-              <h2 className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-                {routine.name}
-              </h2>
-              <ul className="flex flex-col gap-2">
-                {(stepsByRoutine.get(routine.id) ?? []).map((step) => {
-                  const completions = completionsByStep.get(step.id) ?? new Set<string>();
-                  const cycleDate = currentCycleDate(routine.cadence);
-                  const checked = completions.has(cycleDate);
-                  const streak = computeStreak(routine.cadence, completions);
-                  return (
-                    <li key={step.id}>
-                      <StepCheckbox
-                        routineId={routine.id}
-                        stepId={step.id}
-                        cadence={routine.cadence}
-                        label={step.label}
-                        checked={checked}
-                        streak={streak}
-                        allowUncheck={false}
-                      />
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
-        </div>
-      )}
+        <h1 className="font-serif text-[34px] font-medium leading-[1.02] tracking-[-0.01em] text-foreground-display">
+          {todayLabel}
+        </h1>
+      </div>
 
       {slippingTasks.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <h2 className="text-sm font-medium text-amber-600 dark:text-amber-400">
+        <div className="mb-[38px]">
+          <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-slipping-label">
             Slipping
-          </h2>
-          <ul className="flex flex-col gap-2">
+          </div>
+          <div className="flex flex-col gap-2.5">
             {slippingTasks.map((task) => (
               <Link
                 key={task.id}
                 href={`/domains/${task.domain_id}/tasks/${task.id}`}
-                className="flex items-center gap-3 rounded-lg border border-amber-600/30 px-4 py-3 hover:bg-amber-600/5 dark:border-amber-400/30"
+                className="flex items-start justify-between gap-3 rounded-[10px] border border-slipping-border bg-slipping-fill px-[15px] py-[13px]"
               >
-                <span
-                  className={`h-2.5 w-2.5 shrink-0 rounded-full ${DOMAIN_COLOR_CLASSES[task.domain_color]}`}
-                />
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-black dark:text-zinc-50">{task.title}</span>
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                    {task.domain_name} · No update in {daysSince(task.updated_at)} days
-                  </span>
+                <div className="flex items-start gap-[11px]">
+                  <span
+                    className={`mt-[5px] h-2 w-2 shrink-0 rounded-full ${DOMAIN_COLOR_CLASSES[task.domain_color]}`}
+                  />
+                  <div>
+                    <div className="mb-[3px] text-[15px] text-foreground">{task.title}</div>
+                    <div className="text-[12px] text-muted">
+                      {task.domain_name} · No update in {daysSince(task.updated_at)} days
+                    </div>
+                  </div>
                 </div>
               </Link>
             ))}
-          </ul>
+          </div>
         </div>
       )}
 
-      <ul className="flex flex-col gap-2">
-        {tasks.map((task) => {
-          const overdue = task.due_date !== null && task.due_date < today;
-          return (
-            <li
-              key={task.id}
-              className="flex items-center justify-between gap-3 rounded-lg border border-black/10 px-4 py-3 dark:border-white/10"
-            >
-              <div className="flex items-center gap-3">
+      {calendarEvents.length > 0 && (
+        <div className="mb-[38px]">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+            Calendar
+          </div>
+          <div className="border-t border-hairline">
+            {calendarEvents.map((event) => (
+              <div
+                key={event.id}
+                className="flex items-center gap-3.5 border-b border-hairline py-3.5"
+              >
                 <span
-                  className={`h-2.5 w-2.5 shrink-0 rounded-full ${DOMAIN_COLOR_CLASSES[task.domain_color]}`}
+                  className="h-[7px] w-[7px] shrink-0 rounded-full"
+                  style={{ backgroundColor: event.calendarColor }}
                 />
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-black dark:text-zinc-50">{task.title}</span>
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                    {task.domain_name} ·{" "}
-                    {task.due_date
-                      ? overdue
-                        ? `Overdue (${task.due_date})`
-                        : `Due ${task.due_date}`
-                      : "No due date"}{" "}
-                    · {task.priority}
-                    {task.repeat_unit &&
-                      ` · ${describeRepeatRule({
-                        unit: task.repeat_unit,
-                        interval: task.repeat_interval,
-                        weekdays: task.repeat_weekdays,
-                      })}`}
-                  </span>
-                </div>
+                <span className="flex-1 text-[15px] text-foreground">
+                  {event.summary || "(No title)"}
+                </span>
+                <span className="whitespace-nowrap text-[12.5px] tabular-nums text-muted">
+                  {formatEventTimeRange(event)}
+                </span>
               </div>
-              <form action={toggleTaskStatus.bind(null, task.domain_id, task.id)}>
-                <button
-                  type="submit"
-                  className="rounded-full border border-black/10 px-3 py-1 text-xs font-medium text-black hover:bg-black/[.04] dark:border-white/10 dark:text-zinc-50 dark:hover:bg-white/[.06]"
-                >
-                  Mark done
-                </button>
-              </form>
-            </li>
-          );
-        })}
-        {tasks.length === 0 && (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            Nothing due right now.
-          </p>
-        )}
-      </ul>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {routines.map((routine) => (
+        <div key={routine.id} className="mb-[38px]">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+            {routine.name}
+          </div>
+          <div className="border-t border-hairline">
+            {(stepsByRoutine.get(routine.id) ?? []).map((step) => {
+              const completions = completionsByStep.get(step.id) ?? new Set<string>();
+              const cycleDate = currentCycleDate(routine.cadence);
+              const checked = completions.has(cycleDate);
+              const streak = computeStreak(routine.cadence, completions);
+              return (
+                <StepCheckbox
+                  key={step.id}
+                  routineId={routine.id}
+                  stepId={step.id}
+                  cadence={routine.cadence}
+                  label={step.label}
+                  checked={checked}
+                  streak={streak}
+                  allowUncheck={false}
+                />
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
+      <div className="mb-2">
+        <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+          Tasks
+        </div>
+        <div className="flex flex-col gap-2.5">
+          {tasks.map((task) => {
+            const overdue = task.due_date !== null && task.due_date < today;
+            return (
+              <div
+                key={task.id}
+                className="flex items-start justify-between gap-3 rounded-[10px] border border-card-border px-[15px] py-3.5"
+              >
+                <div className="flex items-start gap-[11px]">
+                  <span
+                    className={`mt-[5px] h-2 w-2 shrink-0 rounded-full ${DOMAIN_COLOR_CLASSES[task.domain_color]}`}
+                  />
+                  <div>
+                    <div className="mb-[3px] text-[15px] text-foreground">{task.title}</div>
+                    <div className="text-[12px] leading-[1.4] text-muted">
+                      {task.domain_name} ·{" "}
+                      {task.due_date
+                        ? overdue
+                          ? `Overdue (${task.due_date})`
+                          : `Due ${task.due_date}`
+                        : "No due date"}{" "}
+                      · {task.priority}
+                      {task.repeat_unit &&
+                        ` · ${describeRepeatRule({
+                          unit: task.repeat_unit,
+                          interval: task.repeat_interval,
+                          weekdays: task.repeat_weekdays,
+                        })}`}
+                    </div>
+                  </div>
+                </div>
+                <form action={toggleTaskStatus.bind(null, task.domain_id, task.id)}>
+                  <button
+                    type="submit"
+                    className="shrink-0 rounded-full border border-button-border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
+                  >
+                    Done
+                  </button>
+                </form>
+              </div>
+            );
+          })}
+          {tasks.length === 0 && (
+            <p className="my-1 text-[14px] text-muted">Nothing due right now.</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

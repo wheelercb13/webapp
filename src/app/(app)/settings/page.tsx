@@ -1,28 +1,36 @@
 import Link from "next/link";
 
 const SETTINGS_PAGES = [
-  { label: "Calendar", href: "/settings/calendar" },
-  { label: "System Access", href: "/settings/access" },
-  { label: "Users", href: "/settings/users" },
+  { label: "Calendar", href: "/settings/calendar", color: "#3b82f6" },
+  { label: "System Access", href: "/settings/access", color: "#a855f7" },
+  { label: "Users", href: "/settings/users", color: "#22c55e" },
 ];
 
 export default function SettingsPage() {
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
-      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">Settings</h1>
+    <div className="mx-auto flex w-full max-w-[468px] flex-col px-[22px]">
+      <div className="pb-[26px] pt-9">
+        <h1 className="font-serif text-[34px] font-medium leading-[1.02] tracking-[-0.01em] text-foreground-display">
+          Settings
+        </h1>
+      </div>
 
-      <ul className="flex flex-col gap-2">
-        {SETTINGS_PAGES.map((fn) => (
-          <li key={fn.href}>
-            <Link
-              href={fn.href}
-              className="flex items-center rounded-lg border border-black/10 px-4 py-3 hover:bg-black/[.02] dark:border-white/10 dark:hover:bg-white/[.04]"
-            >
-              <span className="text-black dark:text-zinc-50">{fn.label}</span>
-            </Link>
-          </li>
+      <div className="border-t border-hairline">
+        {SETTINGS_PAGES.map((page) => (
+          <Link
+            key={page.href}
+            href={page.href}
+            className="flex items-center gap-3.5 border-b border-hairline py-[17px]"
+          >
+            <span
+              className="h-2 w-2 shrink-0 rounded-full"
+              style={{ backgroundColor: page.color }}
+            />
+            <span className="flex-1 text-[16px] text-foreground">{page.label}</span>
+            <span className="text-[16px] leading-none text-faint">›</span>
+          </Link>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
