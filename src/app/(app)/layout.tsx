@@ -93,6 +93,14 @@ export default async function AppLayout({
             Library
           </Link>
         )}
+        {canAccess("/calendar") && (
+          <Link
+            href="/calendar"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:text-zinc-50 dark:hover:bg-white/[.06]"
+          >
+            Calendar
+          </Link>
+        )}
         {canAccess("/domains") && (
           <Link
             href="/domains"

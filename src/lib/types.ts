@@ -131,3 +131,13 @@ export type Note = {
   source: NoteSource;
   created_at: string;
 };
+
+export type CalendarConnection = {
+  id: string;
+  user_id: string;
+  refresh_token: string;
+  access_token: string | null;
+  token_expiry: string | null;
+  google_calendar_id: string;
+  created_at: string;
+};
