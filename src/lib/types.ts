@@ -106,3 +106,17 @@ export type InboxItem = {
   resolved: boolean;
   resolved_into: InboxResolution | null;
 };
+
+export type IdeaStage = "idea" | "drafting" | "published";
+
+export type Idea = {
+  id: string;
+  user_id: string;
+  title: string;
+  notes: string | null;
+  tags: string[];
+  stage: IdeaStage;
+  priority: TaskPriority;
+  linked_task_id: string | null;
+  created_at: string;
+};

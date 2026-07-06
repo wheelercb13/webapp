@@ -12,4 +12,5 @@ export const FUNCTION_ROUTES: Record<string, string> = {
   "/users": "users",
   "/routines": "routines",
   "/inbox": "inbox",
+  "/ideas": "ideas",
 };
