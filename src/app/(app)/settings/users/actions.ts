@@ -52,8 +52,8 @@ export async function createUser(
     return { error: error.message };
   }
 
-  revalidatePath("/users");
-  redirect("/users", "replace");
+  revalidatePath("/settings/users");
+  redirect("/settings/users", "replace");
 }
 
 export async function updateUser(
@@ -101,8 +101,8 @@ export async function updateUser(
     return { error: error.message };
   }
 
-  revalidatePath("/users");
-  redirect("/users", "replace");
+  revalidatePath("/settings/users");
+  redirect("/settings/users", "replace");
 }
 
 export async function deleteUser(userId: string): Promise<UserFormState> {
@@ -129,6 +129,6 @@ export async function deleteUser(userId: string): Promise<UserFormState> {
     return { error: error.message };
   }
 
-  revalidatePath("/users");
-  redirect("/users", "replace");
+  revalidatePath("/settings/users");
+  redirect("/settings/users", "replace");
 }

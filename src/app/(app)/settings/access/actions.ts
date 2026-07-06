@@ -19,6 +19,6 @@ export async function updateFunctionAccess(
 
   await supabase.from("functions").update({ access_level: accessLevel }).eq("key", key);
 
-  revalidatePath("/system/access");
+  revalidatePath("/settings/access");
   revalidatePath("/", "layout");
 }

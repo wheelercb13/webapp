@@ -32,7 +32,7 @@ export function SendToTaskForm({
           id={`${id}-domainId`}
           name="domainId"
           defaultValue={domains[0].id}
-          className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+          className="rounded border border-black/10 bg-white px-3 py-2 text-black dark:border-white/10 dark:bg-black dark:text-zinc-50"
         >
           {domains.map((domain) => (
             <option key={domain.id} value={domain.id}>

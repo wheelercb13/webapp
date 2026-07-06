@@ -30,6 +30,7 @@ export type Domain = {
   user_id: string;
   name: string;
   color: DomainColor;
+  sort_order: number;
   created_at: string;
 };
 
@@ -76,6 +77,7 @@ export type Routine = {
   user_id: string;
   name: string;
   cadence: RoutineCadence;
+  sort_order: number;
   created_at: string;
 };
 
@@ -94,6 +96,27 @@ export type RoutineCompletion = {
   routine_step_id: string;
   cycle_date: string;
   completed_at: string;
+};
+
+export type RoutineHistory = {
+  id: string;
+  user_id: string;
+  source_routine_id: string | null;
+  name: string;
+  cadence: RoutineCadence;
+  created_at: string;
+};
+
+export type RoutineStepHistory = {
+  id: string;
+  user_id: string;
+  routine_history_id: string;
+  source_step_id: string | null;
+  step_label: string;
+  longest_streak_days: number;
+  streak_start_cycle_date: string | null;
+  streak_end_cycle_date: string | null;
+  updated_at: string;
 };
 
 export type InboxResolution = "task" | "idea" | "note";

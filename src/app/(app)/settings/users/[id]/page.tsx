@@ -15,7 +15,7 @@ export default async function EditUserPage({
   const { data } = await admin.auth.admin.getUserById(id);
 
   if (!data?.user) {
-    redirect("/users");
+    redirect("/settings/users");
   }
 
   const supabase = await createClient();

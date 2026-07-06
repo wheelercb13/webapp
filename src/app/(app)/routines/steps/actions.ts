@@ -4,6 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { currentCycleDate } from "@/lib/routines";
+import {
+  recordStepCreated,
+  syncRoutineStepHistorySnapshot,
+  recordStreakIfBest,
+} from "@/lib/routine-history";
 import type { RoutineCadence } from "@/lib/types";
 
 export type StepFormState = { error?: string } | undefined;
@@ -26,13 +31,17 @@ export async function createStep(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("routine_steps")
-    .insert({ routine_id: routineId, label });
+    .insert({ routine_id: routineId, label })
+    .select()
+    .single();
 
   if (error) {
     return { error: error.message };
   }
+
+  await recordStepCreated(supabase, data.id);
 
   revalidateRoutinePaths(routineId);
   redirect(`/routines/${routineId}`, "replace");
@@ -59,6 +68,8 @@ export async function updateStep(
   if (error) {
     return { error: error.message };
   }
+
+  await syncRoutineStepHistorySnapshot(supabase, stepId, label);
 
   revalidateRoutinePaths(routineId);
   redirect(`/routines/${routineId}`, "replace");
@@ -91,6 +102,8 @@ export async function toggleStepCompletion(
       .from("routine_completions")
       .insert({ routine_step_id: stepId, cycle_date: cycleDate });
   }
+
+  await recordStreakIfBest(supabase, stepId, cadence);
 
   revalidateRoutinePaths(routineId);
 }

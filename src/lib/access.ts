@@ -4,12 +4,11 @@
 // gating logic in proxy.ts and the nav in layout.tsx both read from this
 // single map instead of hardcoding per-feature checks.
 //
-// "/system" is intentionally NOT here -- it's always admin-only,
+// "/settings" is intentionally NOT here -- it's always admin-only,
 // hardcoded, so it can never be reconfigured to General via the System
-// Access UI it hosts.
+// Access UI it hosts. Users lives under /settings for the same reason.
 export const FUNCTION_ROUTES: Record<string, string> = {
   "/domains": "domains",
-  "/users": "users",
   "/routines": "routines",
   "/inbox": "inbox",
   "/ideas": "ideas",

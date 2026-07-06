@@ -1,17 +1,18 @@
 import Link from "next/link";
 
-const SYSTEM_FUNCTIONS = [
-  { label: "System Access", href: "/system/access" },
-  { label: "Calendar", href: "/system/calendar" },
+const SETTINGS_PAGES = [
+  { label: "Calendar", href: "/settings/calendar" },
+  { label: "System Access", href: "/settings/access" },
+  { label: "Users", href: "/settings/users" },
 ];
 
-export default function SystemPage() {
+export default function SettingsPage() {
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
-      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">System</h1>
+      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">Settings</h1>
 
       <ul className="flex flex-col gap-2">
-        {SYSTEM_FUNCTIONS.map((fn) => (
+        {SETTINGS_PAGES.map((fn) => (
           <li key={fn.href}>
             <Link
               href={fn.href}

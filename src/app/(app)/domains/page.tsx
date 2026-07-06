@@ -2,13 +2,14 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { Domain } from "@/lib/types";
 import { DOMAIN_COLOR_CLASSES } from "@/lib/colors";
+import { reorderDomain } from "./actions";
 
 export default async function DomainsPage() {
   const supabase = await createClient();
   const { data } = (await supabase
     .from("domains")
     .select("*")
-    .order("name")) as { data: Domain[] | null };
+    .order("sort_order")) as { data: Domain[] | null };
 
   const domains = data ?? [];
 
@@ -27,17 +28,39 @@ export default async function DomainsPage() {
       </div>
 
       <ul className="flex flex-col gap-2">
-        {domains.map((domain) => (
-          <li key={domain.id}>
+        {domains.map((domain, index) => (
+          <li key={domain.id} className="flex items-center gap-2">
             <Link
               href={`/domains/${domain.id}`}
-              className="flex items-center gap-3 rounded-lg border border-black/10 px-4 py-3 hover:bg-black/[.02] dark:border-white/10 dark:hover:bg-white/[.04]"
+              className="flex flex-1 items-center gap-3 rounded-lg border border-black/10 px-4 py-3 hover:bg-black/[.02] dark:border-white/10 dark:hover:bg-white/[.04]"
             >
               <span
                 className={`h-3 w-3 rounded-full ${DOMAIN_COLOR_CLASSES[domain.color]}`}
               />
               <span className="text-black dark:text-zinc-50">{domain.name}</span>
             </Link>
+            <div className="flex flex-col">
+              <form action={reorderDomain.bind(null, domain.id, "up")}>
+                <button
+                  type="submit"
+                  disabled={index === 0}
+                  aria-label="Move up"
+                  className="flex h-5 w-6 items-center justify-center text-xs text-zinc-500 hover:text-black disabled:opacity-30 dark:text-zinc-400 dark:hover:text-zinc-50"
+                >
+                  ▲
+                </button>
+              </form>
+              <form action={reorderDomain.bind(null, domain.id, "down")}>
+                <button
+                  type="submit"
+                  disabled={index === domains.length - 1}
+                  aria-label="Move down"
+                  className="flex h-5 w-6 items-center justify-center text-xs text-zinc-500 hover:text-black disabled:opacity-30 dark:text-zinc-400 dark:hover:text-zinc-50"
+                >
+                  ▼
+                </button>
+              </form>
+            </div>
           </li>
         ))}
         {domains.length === 0 && (

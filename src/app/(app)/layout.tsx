@@ -61,14 +61,6 @@ export default async function AppLayout({
         >
           Today
         </Link>
-        {canAccess("/routines") && (
-          <Link
-            href="/routines"
-            className="rounded-lg px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:text-zinc-50 dark:hover:bg-white/[.06]"
-          >
-            Routines
-          </Link>
-        )}
         {canAccess("/inbox") && (
           <Link
             href="/inbox"
@@ -85,14 +77,6 @@ export default async function AppLayout({
             Ideas
           </Link>
         )}
-        {canAccess("/library") && (
-          <Link
-            href="/library"
-            className="rounded-lg px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:text-zinc-50 dark:hover:bg-white/[.06]"
-          >
-            Library
-          </Link>
-        )}
         {canAccess("/domains") && (
           <Link
             href="/domains"
@@ -101,20 +85,28 @@ export default async function AppLayout({
             Domains
           </Link>
         )}
-        {canAccess("/users") && (
+        {canAccess("/routines") && (
           <Link
-            href="/users"
+            href="/routines"
             className="rounded-lg px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:text-zinc-50 dark:hover:bg-white/[.06]"
           >
-            Users
+            Routines
+          </Link>
+        )}
+        {canAccess("/library") && (
+          <Link
+            href="/library"
+            className="rounded-lg px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:text-zinc-50 dark:hover:bg-white/[.06]"
+          >
+            Library
           </Link>
         )}
         {isAdmin && (
           <Link
-            href="/system"
+            href="/settings"
             className="rounded-lg px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:text-zinc-50 dark:hover:bg-white/[.06]"
           >
-            System
+            Settings
           </Link>
         )}
       </nav>

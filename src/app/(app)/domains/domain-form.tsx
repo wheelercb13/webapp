@@ -38,7 +38,7 @@ export function DomainForm({
           id={`${id}-color`}
           name="color"
           defaultValue={initial?.color ?? DOMAIN_COLORS[0]}
-          className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+          className="rounded border border-black/10 bg-white px-3 py-2 text-black dark:border-white/10 dark:bg-black dark:text-zinc-50"
         >
           {DOMAIN_COLORS.map((color) => (
             <option key={color} value={color}>

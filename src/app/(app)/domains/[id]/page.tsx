@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Domain, Task } from "@/lib/types";
 import { DOMAIN_COLOR_CLASSES } from "@/lib/colors";
+import { completedTaskCutoffIso } from "@/lib/task-retention";
 import { TaskRow } from "@/app/(app)/tasks/task-row";
 
 export default async function DomainDetailPage({
@@ -23,6 +24,13 @@ export default async function DomainDetailPage({
     redirect("/domains");
   }
 
+  await supabase
+    .from("tasks")
+    .delete()
+    .eq("domain_id", id)
+    .eq("status", "done")
+    .lt("updated_at", completedTaskCutoffIso());
+
   const { data: tasksData } = (await supabase
     .from("tasks")
     .select("*")
@@ -31,6 +39,8 @@ export default async function DomainDetailPage({
     .order("created_at", { ascending: true })) as { data: Task[] | null };
 
   const tasks = tasksData ?? [];
+  const activeTasks = tasks.filter((t) => t.status === "open");
+  const completedTasks = tasks.filter((t) => t.status === "done");
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
@@ -57,16 +67,30 @@ export default async function DomainDetailPage({
         </div>
       </div>
 
-      <ul className="flex flex-col gap-2">
-        {tasks.map((task) => (
-          <TaskRow key={task.id} task={task} />
-        ))}
-        {tasks.length === 0 && (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            No tasks in this domain yet.
-          </p>
-        )}
-      </ul>
+      <div className="flex flex-col gap-2">
+        <h2 className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Active</h2>
+        <ul className="flex flex-col gap-2">
+          {activeTasks.map((task) => (
+            <TaskRow key={task.id} task={task} />
+          ))}
+          {activeTasks.length === 0 && (
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              No active tasks in this domain.
+            </p>
+          )}
+        </ul>
+      </div>
+
+      {completedTasks.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <h2 className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Completed</h2>
+          <ul className="flex flex-col gap-2">
+            {completedTasks.map((task) => (
+              <TaskRow key={task.id} task={task} />
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

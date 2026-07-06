@@ -9,7 +9,7 @@ export async function GET(request: Request) {
 
   if (error || !code) {
     return NextResponse.redirect(
-      new URL(`/system/calendar?error=${encodeURIComponent(error ?? "missing_code")}`, url.origin)
+      new URL(`/settings/calendar?error=${encodeURIComponent(error ?? "missing_code")}`, url.origin)
     );
   }
 
@@ -38,13 +38,13 @@ export async function GET(request: Request) {
 
     if (dbError) {
       return NextResponse.redirect(
-        new URL(`/system/calendar?error=${encodeURIComponent(dbError.message)}`, url.origin)
+        new URL(`/settings/calendar?error=${encodeURIComponent(dbError.message)}`, url.origin)
       );
     }
 
-    return NextResponse.redirect(new URL("/system/calendar", url.origin));
+    return NextResponse.redirect(new URL("/settings/calendar", url.origin));
   } catch (err) {
     const message = err instanceof Error ? err.message : "unknown_error";
-    return NextResponse.redirect(new URL(`/system/calendar?error=${encodeURIComponent(message)}`, url.origin));
+    return NextResponse.redirect(new URL(`/settings/calendar?error=${encodeURIComponent(message)}`, url.origin));
   }
 }

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { DomainColor } from "@/lib/types";
+import type { Domain, DomainColor } from "@/lib/types";
 
 export type DomainFormState = { error?: string } | undefined;
 
@@ -19,7 +19,16 @@ export async function createDomain(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.from("domains").insert({ name, color });
+
+  const { data: last } = (await supabase
+    .from("domains")
+    .select("sort_order")
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle()) as { data: Pick<Domain, "sort_order"> | null };
+  const sortOrder = (last?.sort_order ?? 0) + 1;
+
+  const { error } = await supabase.from("domains").insert({ name, color, sort_order: sortOrder });
 
   if (error) {
     if (error.code === "23505") {
@@ -69,4 +78,32 @@ export async function deleteDomain(domainId: string) {
   revalidatePath("/domains");
   revalidatePath("/");
   redirect("/domains", "replace");
+}
+
+export async function reorderDomain(domainId: string, direction: "up" | "down") {
+  const supabase = await createClient();
+  const { data } = (await supabase
+    .from("domains")
+    .select("id, sort_order")
+    .order("sort_order", { ascending: true })) as {
+    data: Pick<Domain, "id" | "sort_order">[] | null;
+  };
+
+  const domains = data ?? [];
+  const index = domains.findIndex((d) => d.id === domainId);
+  const swapIndex = direction === "up" ? index - 1 : index + 1;
+
+  if (index === -1 || swapIndex < 0 || swapIndex >= domains.length) {
+    return;
+  }
+
+  const current = domains[index];
+  const swap = domains[swapIndex];
+
+  await Promise.all([
+    supabase.from("domains").update({ sort_order: swap.sort_order }).eq("id", current.id),
+    supabase.from("domains").update({ sort_order: current.sort_order }).eq("id", swap.id),
+  ]);
+
+  revalidatePath("/domains");
 }

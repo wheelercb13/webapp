@@ -23,13 +23,23 @@ import {
   type GoogleCalendarEvent,
 } from "@/lib/google-calendar";
 
-function formatEventTime(event: GoogleCalendarEvent): string {
-  if (event.start.date) return "All day";
+function formatEventTime(dateTime: string): string {
   return new Intl.DateTimeFormat("en-US", {
     timeZone: APP_TIMEZONE,
     hour: "numeric",
     minute: "2-digit",
-  }).format(new Date(event.start.dateTime!));
+  }).format(new Date(dateTime));
+}
+
+function formatEventTimeRange(event: GoogleCalendarEvent): string {
+  if (event.start.date) return "All day";
+  const start = formatEventTime(event.start.dateTime!);
+  return event.end.dateTime ? `${start} – ${formatEventTime(event.end.dateTime)}` : start;
+}
+
+function hasEnded(event: GoogleCalendarEvent): boolean {
+  if (!event.end.dateTime) return false;
+  return new Date(event.end.dateTime).getTime() < Date.now();
 }
 
 type TaskRow = Task & { domains: { name: string; color: TaskWithDomain["domain_color"] } | null };
@@ -160,11 +170,14 @@ export default async function TodayPage() {
           listEvents(accessToken!, cal.id, startOfDay.toISOString(), startOfNextDay.toISOString())
         )
       );
-      calendarEvents = eventsPerCalendar.flat().sort((a, b) => {
-        const aStart = a.start.dateTime ?? a.start.date ?? "";
-        const bStart = b.start.dateTime ?? b.start.date ?? "";
-        return aStart < bStart ? -1 : aStart > bStart ? 1 : 0;
-      });
+      calendarEvents = eventsPerCalendar
+        .flat()
+        .filter((e) => !hasEnded(e))
+        .sort((a, b) => {
+          const aStart = a.start.dateTime ?? a.start.date ?? "";
+          const bStart = b.start.dateTime ?? b.start.date ?? "";
+          return aStart < bStart ? -1 : aStart > bStart ? 1 : 0;
+        });
     } catch {
       calendarEvents = [];
     }
@@ -189,7 +202,7 @@ export default async function TodayPage() {
                   {event.summary || "(No title)"}
                 </span>
                 <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                  {formatEventTime(event)}
+                  {formatEventTimeRange(event)}
                 </span>
               </li>
             ))}

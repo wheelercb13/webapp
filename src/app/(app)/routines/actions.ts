@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { RoutineCadence } from "@/lib/types";
+import type { Routine, RoutineCadence } from "@/lib/types";
+import { recordRoutineCreated, syncRoutineHistorySnapshot } from "@/lib/routine-history";
 
 export type RoutineFormState = { error?: string } | undefined;
 
@@ -19,9 +20,18 @@ export async function createRoutine(
   }
 
   const supabase = await createClient();
+
+  const { data: last } = (await supabase
+    .from("routines")
+    .select("sort_order")
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle()) as { data: Pick<Routine, "sort_order"> | null };
+  const sortOrder = (last?.sort_order ?? 0) + 1;
+
   const { data, error } = await supabase
     .from("routines")
-    .insert({ name, cadence })
+    .insert({ name, cadence, sort_order: sortOrder })
     .select()
     .single();
 
@@ -31,6 +41,8 @@ export async function createRoutine(
     }
     return { error: error.message };
   }
+
+  await recordRoutineCreated(supabase, data.id);
 
   revalidatePath("/routines");
   revalidatePath("/");
@@ -62,6 +74,8 @@ export async function updateRoutine(
     return { error: error.message };
   }
 
+  await syncRoutineHistorySnapshot(supabase, routineId, name, cadence);
+
   revalidatePath("/routines");
   revalidatePath(`/routines/${routineId}`);
   revalidatePath("/");
@@ -74,4 +88,32 @@ export async function deleteRoutine(routineId: string) {
   revalidatePath("/routines");
   revalidatePath("/");
   redirect("/routines", "replace");
+}
+
+export async function reorderRoutine(routineId: string, direction: "up" | "down") {
+  const supabase = await createClient();
+  const { data } = (await supabase
+    .from("routines")
+    .select("id, sort_order")
+    .order("sort_order", { ascending: true })) as {
+    data: Pick<Routine, "id" | "sort_order">[] | null;
+  };
+
+  const routines = data ?? [];
+  const index = routines.findIndex((r) => r.id === routineId);
+  const swapIndex = direction === "up" ? index - 1 : index + 1;
+
+  if (index === -1 || swapIndex < 0 || swapIndex >= routines.length) {
+    return;
+  }
+
+  const current = routines[index];
+  const swap = routines[swapIndex];
+
+  await Promise.all([
+    supabase.from("routines").update({ sort_order: swap.sort_order }).eq("id", current.id),
+    supabase.from("routines").update({ sort_order: current.sort_order }).eq("id", swap.id),
+  ]);
+
+  revalidatePath("/routines");
 }

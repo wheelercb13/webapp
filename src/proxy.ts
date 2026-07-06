@@ -53,7 +53,7 @@ export default async function proxy(request: NextRequest) {
   if (user && !user.app_metadata?.is_admin) {
     const pathname = request.nextUrl.pathname;
 
-    if (matchesPrefix(pathname, "/system")) {
+    if (matchesPrefix(pathname, "/settings")) {
       const url = request.nextUrl.clone();
       url.pathname = "/";
       return NextResponse.redirect(url);

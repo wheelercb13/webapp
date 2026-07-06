@@ -11,7 +11,7 @@ export default async function UsersPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-black dark:text-zinc-50">Users</h1>
         <Link
-          href="/users/new"
+          href="/settings/users/new"
           className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
         >
           Create New
@@ -22,7 +22,7 @@ export default async function UsersPage() {
         {users.map((user) => (
           <li key={user.id}>
             <Link
-              href={`/users/${user.id}`}
+              href={`/settings/users/${user.id}`}
               className="flex items-center rounded-lg border border-black/10 px-4 py-3 hover:bg-black/[.02] dark:border-white/10 dark:hover:bg-white/[.04]"
             >
               <span className="text-black dark:text-zinc-50">{user.email}</span>
