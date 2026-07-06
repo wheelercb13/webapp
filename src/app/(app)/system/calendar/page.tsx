@@ -41,7 +41,8 @@ export default async function CalendarPage({
         {connection ? (
           <>
             <p className="text-sm text-black dark:text-zinc-50">
-              Connected to Google Calendar (&quot;{connection.google_calendar_id}&quot;).
+              Connected to Google Calendar. Today&apos;s events from all your calendars
+              will show on the Today view.
             </p>
             <form action={disconnectCalendar}>
               <button
@@ -55,7 +56,7 @@ export default async function CalendarPage({
         ) : (
           <>
             <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              Connect your Google Calendar to sync tasks as time-blocks.
+              Connect your Google Calendar to show today&apos;s events on the Today view.
             </p>
             <a
               href={authUrl}

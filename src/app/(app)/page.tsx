@@ -7,14 +7,30 @@ import type {
   Routine,
   RoutineStep,
   RoutineCompletion,
+  CalendarConnection,
 } from "@/lib/types";
 import { DOMAIN_COLOR_CLASSES } from "@/lib/colors";
-import { todayString } from "@/lib/date";
+import { APP_TIMEZONE, todayString, zonedStartOfDayUtc } from "@/lib/date";
 import { computeStreak, currentCycleDate } from "@/lib/routines";
 import { describeRepeatRule } from "@/lib/recurrence";
 import { slippingCutoffIso, daysSince } from "@/lib/slipping";
 import { toggleTaskStatus } from "@/app/(app)/tasks/actions";
 import { StepCheckbox } from "@/app/(app)/routines/steps/step-checkbox";
+import {
+  refreshAccessToken,
+  listCalendars,
+  listEvents,
+  type GoogleCalendarEvent,
+} from "@/lib/google-calendar";
+
+function formatEventTime(event: GoogleCalendarEvent): string {
+  if (event.start.date) return "All day";
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: APP_TIMEZONE,
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(event.start.dateTime!));
+}
 
 type TaskRow = Task & { domains: { name: string; color: TaskWithDomain["domain_color"] } | null };
 
@@ -108,9 +124,78 @@ export default async function TodayPage() {
 
   slippingTasks.sort((a, b) => (a.updated_at < b.updated_at ? -1 : 1));
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { data: calendarConnection } = (await supabase
+    .from("calendar_connections")
+    .select("*")
+    .eq("user_id", user?.id ?? "")
+    .maybeSingle()) as { data: CalendarConnection | null };
+
+  let calendarEvents: GoogleCalendarEvent[] = [];
+  if (calendarConnection) {
+    let accessToken = calendarConnection.access_token;
+    const expiryMs = calendarConnection.token_expiry
+      ? new Date(calendarConnection.token_expiry).getTime()
+      : 0;
+
+    if (!accessToken || expiryMs < Date.now() + 60_000) {
+      const refreshed = await refreshAccessToken(calendarConnection.refresh_token);
+      accessToken = refreshed.accessToken;
+      await supabase
+        .from("calendar_connections")
+        .update({ access_token: refreshed.accessToken, token_expiry: refreshed.expiresAt })
+        .eq("user_id", calendarConnection.user_id);
+    }
+
+    const startOfDay = zonedStartOfDayUtc(today);
+    const startOfNextDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000);
+
+    try {
+      const calendars = await listCalendars(accessToken!);
+      const eventsPerCalendar = await Promise.all(
+        calendars.map((cal) =>
+          listEvents(accessToken!, cal.id, startOfDay.toISOString(), startOfNextDay.toISOString())
+        )
+      );
+      calendarEvents = eventsPerCalendar.flat().sort((a, b) => {
+        const aStart = a.start.dateTime ?? a.start.date ?? "";
+        const bStart = b.start.dateTime ?? b.start.date ?? "";
+        return aStart < bStart ? -1 : aStart > bStart ? 1 : 0;
+      });
+    } catch {
+      calendarEvents = [];
+    }
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
       <h1 className="text-xl font-semibold text-black dark:text-zinc-50">Today</h1>
+
+      {calendarEvents.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <h2 className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+            Calendar
+          </h2>
+          <ul className="flex flex-col gap-2">
+            {calendarEvents.map((event) => (
+              <li
+                key={event.id}
+                className="flex items-center justify-between gap-3 rounded-lg border border-black/10 px-4 py-3 dark:border-white/10"
+              >
+                <span className="text-black dark:text-zinc-50">
+                  {event.summary || "(No title)"}
+                </span>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                  {formatEventTime(event)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {routines.length > 0 && (
         <div className="flex flex-col gap-4">

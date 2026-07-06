@@ -138,6 +138,5 @@ export type CalendarConnection = {
   refresh_token: string;
   access_token: string | null;
   token_expiry: string | null;
-  google_calendar_id: string;
   created_at: string;
 };

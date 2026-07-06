@@ -14,6 +14,6 @@ export async function disconnectCalendar() {
     await supabase.from("calendar_connections").delete().eq("user_id", user.id);
   }
 
-  revalidatePath("/calendar");
-  redirect("/calendar", "replace");
+  revalidatePath("/system/calendar");
+  redirect("/system/calendar", "replace");
 }

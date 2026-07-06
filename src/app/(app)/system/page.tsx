@@ -1,6 +1,9 @@
 import Link from "next/link";
 
-const SYSTEM_FUNCTIONS = [{ label: "System Access", href: "/system/access" }];
+const SYSTEM_FUNCTIONS = [
+  { label: "System Access", href: "/system/access" },
+  { label: "Calendar", href: "/system/calendar" },
+];
 
 export default function SystemPage() {
   return (
