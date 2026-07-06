@@ -86,7 +86,7 @@ export function TaskForm({
           id={`${id}-priority`}
           name="priority"
           defaultValue={initial?.priority ?? "med"}
-          className="rounded border border-black/10 bg-white px-3 py-2 text-black dark:border-white/10 dark:bg-black dark:text-zinc-50"
+          className="rounded border border-black/10 bg-background px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
         >
           <option value="low">low</option>
           <option value="med">med</option>
@@ -105,7 +105,7 @@ export function TaskForm({
               name="repeatUnit"
               value={repeatUnit}
               onChange={(e) => setRepeatUnit(e.target.value)}
-              className="rounded border border-black/10 bg-white px-3 py-2 text-black dark:border-white/10 dark:bg-black dark:text-zinc-50"
+              className="rounded border border-black/10 bg-background px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
             >
               <option value="">Does not repeat</option>
               <option value="day">Daily</option>
@@ -163,7 +163,7 @@ export function TaskForm({
                 name="repeatEnds"
                 value={repeatEnds}
                 onChange={(e) => setRepeatEnds(e.target.value)}
-                className="rounded border border-black/10 bg-white px-3 py-2 text-black dark:border-white/10 dark:bg-black dark:text-zinc-50"
+                className="rounded border border-black/10 bg-background px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
               >
                 <option value="never">Never</option>
                 <option value="on">On date</option>
