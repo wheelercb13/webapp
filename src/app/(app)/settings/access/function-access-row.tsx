@@ -22,8 +22,8 @@ export function FunctionAccessRow({
   }
 
   return (
-    <tr>
-      <td className="px-4 py-3 text-black dark:text-zinc-50">{label}</td>
+    <tr className="border-b border-hairline last:border-b-0">
+      <td className="px-4 py-3 text-[15px] text-foreground">{label}</td>
       <td className="px-4 py-3 text-center">
         <input
           type="checkbox"

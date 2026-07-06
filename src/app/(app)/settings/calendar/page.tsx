@@ -28,26 +28,30 @@ export default async function CalendarPage({
   const authUrl = buildAuthUrl(redirectUri);
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
-      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">Calendar</h1>
+    <div className="mx-auto flex w-full max-w-[468px] flex-col px-[22px]">
+      <div className="pb-[26px] pt-9">
+        <h1 className="font-serif text-[34px] font-medium leading-[1.02] tracking-[-0.01em] text-foreground-display">
+          Calendar
+        </h1>
+      </div>
 
       {error && (
-        <p className="rounded-lg border border-red-600/30 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+        <p className="mb-4 rounded-lg border border-delete-border px-4 py-3 text-[13px] text-delete-text">
           Google Calendar connection failed: {error}
         </p>
       )}
 
-      <div className="flex flex-col gap-3 rounded-lg border border-black/10 p-4 dark:border-white/10">
+      <div className="flex flex-col gap-3 rounded-xl border border-card-border p-4">
         {connection ? (
           <>
-            <p className="text-sm text-black dark:text-zinc-50">
+            <p className="text-[14px] text-foreground">
               Connected to Google Calendar. Today&apos;s events from all your calendars
               will show on the Today view.
             </p>
             <form action={disconnectCalendar}>
               <button
                 type="submit"
-                className="rounded-full border border-red-600/30 px-4 py-1.5 text-sm font-medium text-red-600 hover:bg-red-600/10 dark:text-red-400"
+                className="rounded-full border border-delete-border px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06]"
               >
                 Disconnect
               </button>
@@ -55,12 +59,12 @@ export default async function CalendarPage({
           </>
         ) : (
           <>
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="text-[14px] text-muted">
               Connect your Google Calendar to show today&apos;s events on the Today view.
             </p>
             <a
               href={authUrl}
-              className="self-start rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
+              className="self-start rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
             >
               Connect Google Calendar
             </a>

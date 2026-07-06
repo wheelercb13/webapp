@@ -44,7 +44,7 @@ export function TaskForm({
   return (
     <form action={formAction} className="flex flex-wrap items-end gap-3">
       <div className="flex flex-col gap-1">
-        <label htmlFor={`${id}-title`} className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor={`${id}-title`} className="text-[12px] text-muted">
           Title
         </label>
         <input
@@ -52,22 +52,22 @@ export function TaskForm({
           name="title"
           required
           defaultValue={initial?.title}
-          className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+          className="rounded-lg border border-card-border bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none"
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor={`${id}-notes`} className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor={`${id}-notes`} className="text-[12px] text-muted">
           Notes
         </label>
         <input
           id={`${id}-notes`}
           name="notes"
           defaultValue={initial?.notes ?? undefined}
-          className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+          className="rounded-lg border border-card-border bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none"
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor={`${id}-due_date`} className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor={`${id}-due_date`} className="text-[12px] text-muted">
           Due date
         </label>
         <input
@@ -75,18 +75,18 @@ export function TaskForm({
           name="due_date"
           type="date"
           defaultValue={initial?.due_date ?? undefined}
-          className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+          className="rounded-lg border border-card-border bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none"
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor={`${id}-priority`} className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor={`${id}-priority`} className="text-[12px] text-muted">
           Priority
         </label>
         <select
           id={`${id}-priority`}
           name="priority"
           defaultValue={initial?.priority ?? "med"}
-          className="rounded border border-black/10 bg-background px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+          className="rounded-lg border border-card-border bg-background px-3 py-2.5 text-[15px] text-foreground outline-none"
         >
           <option value="low">low</option>
           <option value="med">med</option>
@@ -94,10 +94,10 @@ export function TaskForm({
         </select>
       </div>
 
-      <div className="flex w-full flex-col gap-3 border-t border-black/10 pt-3 dark:border-white/10">
+      <div className="flex w-full flex-col gap-3 border-t border-hairline pt-3">
         <div className="flex flex-wrap items-end gap-3">
           <div className="flex flex-col gap-1">
-            <label htmlFor={`${id}-repeatUnit`} className="text-sm text-zinc-600 dark:text-zinc-400">
+            <label htmlFor={`${id}-repeatUnit`} className="text-[12px] text-muted">
               Repeat
             </label>
             <select
@@ -105,7 +105,7 @@ export function TaskForm({
               name="repeatUnit"
               value={repeatUnit}
               onChange={(e) => setRepeatUnit(e.target.value)}
-              className="rounded border border-black/10 bg-background px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+              className="rounded-lg border border-card-border bg-background px-3 py-2.5 text-[15px] text-foreground outline-none"
             >
               <option value="">Does not repeat</option>
               <option value="day">Daily</option>
@@ -117,7 +117,7 @@ export function TaskForm({
 
           {repeatUnit && (
             <div className="flex flex-col gap-1">
-              <label htmlFor={`${id}-repeatInterval`} className="text-sm text-zinc-600 dark:text-zinc-400">
+              <label htmlFor={`${id}-repeatInterval`} className="text-[12px] text-muted">
                 Every
               </label>
               <input
@@ -126,7 +126,7 @@ export function TaskForm({
                 type="number"
                 min={1}
                 defaultValue={initial?.repeat_interval ?? 1}
-                className="w-20 rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+                className="w-20 rounded-lg border border-card-border bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none"
               />
             </div>
           )}
@@ -134,10 +134,13 @@ export function TaskForm({
 
         {repeatUnit === "week" && (
           <div className="flex flex-col gap-1">
-            <span className="text-sm text-zinc-600 dark:text-zinc-400">On</span>
+            <span className="text-[12px] text-muted">On</span>
             <div className="flex flex-wrap gap-3">
               {WEEKDAYS.map((day) => (
-                <label key={day.value} className="flex items-center gap-1 text-sm text-black dark:text-zinc-50">
+                <label
+                  key={day.value}
+                  className="flex items-center gap-1 text-[13px] text-foreground"
+                >
                   <input
                     type="checkbox"
                     name="repeatWeekday"
@@ -155,7 +158,7 @@ export function TaskForm({
         {repeatUnit && (
           <div className="flex flex-wrap items-end gap-3">
             <div className="flex flex-col gap-1">
-              <label htmlFor={`${id}-repeatEnds`} className="text-sm text-zinc-600 dark:text-zinc-400">
+              <label htmlFor={`${id}-repeatEnds`} className="text-[12px] text-muted">
                 Ends
               </label>
               <select
@@ -163,7 +166,7 @@ export function TaskForm({
                 name="repeatEnds"
                 value={repeatEnds}
                 onChange={(e) => setRepeatEnds(e.target.value)}
-                className="rounded border border-black/10 bg-background px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+                className="rounded-lg border border-card-border bg-background px-3 py-2.5 text-[15px] text-foreground outline-none"
               >
                 <option value="never">Never</option>
                 <option value="on">On date</option>
@@ -171,7 +174,7 @@ export function TaskForm({
             </div>
             {repeatEnds === "on" && (
               <div className="flex flex-col gap-1">
-                <label htmlFor={`${id}-repeatUntil`} className="text-sm text-zinc-600 dark:text-zinc-400">
+                <label htmlFor={`${id}-repeatUntil`} className="text-[12px] text-muted">
                   End date
                 </label>
                 <input
@@ -179,7 +182,7 @@ export function TaskForm({
                   name="repeatUntil"
                   type="date"
                   defaultValue={initial?.repeat_until ?? undefined}
-                  className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+                  className="rounded-lg border border-card-border bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none"
                 />
               </div>
             )}
@@ -190,13 +193,11 @@ export function TaskForm({
       <button
         type="submit"
         disabled={pending}
-        className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition-colors hover:bg-[#383838] disabled:opacity-50 dark:hover:bg-[#ccc]"
+        className="rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {pending ? "Saving…" : submitLabel}
       </button>
-      {state?.error && (
-        <p className="w-full text-sm text-red-600 dark:text-red-400">{state.error}</p>
-      )}
+      {state?.error && <p className="w-full text-[13px] text-delete-text">{state.error}</p>}
     </form>
   );
 }

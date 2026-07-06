@@ -12,17 +12,25 @@ export default async function SystemAccessPage() {
   const functions = data ?? [];
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
-      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">
-        System Access
-      </h1>
+    <div className="mx-auto flex w-full max-w-[468px] flex-col px-[22px]">
+      <div className="pb-[26px] pt-9">
+        <h1 className="font-serif text-[34px] font-medium leading-[1.02] tracking-[-0.01em] text-foreground-display">
+          System Access
+        </h1>
+      </div>
 
-      <table className="w-full overflow-hidden rounded-lg border border-black/10 dark:border-white/10">
+      <table className="w-full overflow-hidden rounded-xl border border-card-border">
         <thead>
-          <tr className="border-b border-black/10 text-sm text-zinc-600 dark:border-white/10 dark:text-zinc-400">
-            <th className="px-4 py-2 text-left font-medium">Function</th>
-            <th className="px-4 py-2 font-medium">General</th>
-            <th className="px-4 py-2 font-medium">Admin</th>
+          <tr className="border-b border-hairline">
+            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-[0.06em] text-muted">
+              Function
+            </th>
+            <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-muted">
+              General
+            </th>
+            <th className="px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-muted">
+              Admin
+            </th>
           </tr>
         </thead>
         <tbody>

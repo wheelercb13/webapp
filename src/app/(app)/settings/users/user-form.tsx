@@ -27,7 +27,7 @@ export function UserForm({
   return (
     <form action={formAction} className="flex flex-col gap-3">
       <div className="flex flex-col gap-1">
-        <label htmlFor={`${id}-name`} className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor={`${id}-name`} className="text-[12px] text-muted">
           Name
         </label>
         <input
@@ -35,11 +35,11 @@ export function UserForm({
           name="name"
           required
           defaultValue={initialName}
-          className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+          className="rounded-lg border border-card-border bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none"
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor={`${id}-email`} className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor={`${id}-email`} className="text-[12px] text-muted">
           Email
         </label>
         <input
@@ -48,7 +48,7 @@ export function UserForm({
           type="email"
           required
           defaultValue={initialEmail}
-          className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+          className="rounded-lg border border-card-border bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none"
         />
       </div>
       <PasswordInput
@@ -66,7 +66,7 @@ export function UserForm({
         placeholder={passwordRequired ? undefined : "Leave blank to keep current password"}
       />
       {canManageAdmin && (
-        <label className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+        <label className="flex items-center gap-2 text-[13px] text-foreground">
           <input
             type="checkbox"
             name="isAdmin"
@@ -79,13 +79,11 @@ export function UserForm({
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition-colors hover:bg-[#383838] disabled:opacity-50 dark:hover:bg-[#ccc]"
+        className="self-start rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {pending ? "Saving…" : submitLabel}
       </button>
-      {state?.error && (
-        <p className="text-sm text-red-600 dark:text-red-400">{state.error}</p>
-      )}
+      {state?.error && <p className="text-[13px] text-delete-text">{state.error}</p>}
     </form>
   );
 }

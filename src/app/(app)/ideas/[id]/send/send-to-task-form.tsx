@@ -16,7 +16,7 @@ export function SendToTaskForm({
 
   if (domains.length === 0) {
     return (
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+      <p className="text-[14px] text-muted">
         You need at least one domain before sending an idea to a task.
       </p>
     );
@@ -25,14 +25,14 @@ export function SendToTaskForm({
   return (
     <form action={formAction} className="flex flex-wrap items-end gap-3">
       <div className="flex flex-col gap-1">
-        <label htmlFor={`${id}-domainId`} className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor={`${id}-domainId`} className="text-[12px] text-muted">
           Domain
         </label>
         <select
           id={`${id}-domainId`}
           name="domainId"
           defaultValue={domains[0].id}
-          className="rounded border border-black/10 bg-background px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+          className="rounded-lg border border-card-border bg-background px-3 py-2.5 text-[15px] text-foreground outline-none"
         >
           {domains.map((domain) => (
             <option key={domain.id} value={domain.id}>
@@ -44,13 +44,11 @@ export function SendToTaskForm({
       <button
         type="submit"
         disabled={pending}
-        className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition-colors hover:bg-[#383838] disabled:opacity-50 dark:hover:bg-[#ccc]"
+        className="rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {pending ? "Creating…" : "Create Task"}
       </button>
-      {state?.error && (
-        <p className="w-full text-sm text-red-600 dark:text-red-400">{state.error}</p>
-      )}
+      {state?.error && <p className="w-full text-[13px] text-delete-text">{state.error}</p>}
     </form>
   );
 }

@@ -12,6 +12,7 @@ export function StepCheckbox({
   checked,
   streak,
   allowUncheck = true,
+  bordered = true,
 }: {
   routineId: string;
   stepId: string;
@@ -20,6 +21,7 @@ export function StepCheckbox({
   checked: boolean;
   streak: number;
   allowUncheck?: boolean;
+  bordered?: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
 
@@ -32,7 +34,9 @@ export function StepCheckbox({
   const locked = checked && !allowUncheck;
 
   return (
-    <label className="flex cursor-pointer items-center gap-3.5 border-b border-hairline py-[13px]">
+    <label
+      className={`flex cursor-pointer items-center gap-3.5 py-[13px] ${bordered ? "border-b border-hairline" : ""}`}
+    >
       <input
         type="checkbox"
         checked={checked}

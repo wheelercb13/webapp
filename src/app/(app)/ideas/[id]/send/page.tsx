@@ -34,11 +34,13 @@ export default async function SendIdeaToTaskPage({
   const domains = domainsData ?? [];
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
-      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">
-        Send &quot;{idea.title}&quot; to a Task
-      </h1>
-      <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
+    <div className="mx-auto flex w-full max-w-[468px] flex-col px-[22px]">
+      <div className="pb-[26px] pt-9">
+        <h1 className="font-serif text-[34px] font-medium leading-[1.02] tracking-[-0.01em] text-foreground-display">
+          Send &quot;{idea.title}&quot; to a Task
+        </h1>
+      </div>
+      <div className="rounded-xl border border-card-border p-4">
         <SendToTaskForm action={sendIdeaToTask.bind(null, idea.id)} domains={domains} />
       </div>
     </div>

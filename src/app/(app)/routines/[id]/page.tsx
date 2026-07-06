@@ -53,58 +53,64 @@ export default async function RoutineDetailPage({
   const cycleDate = currentCycleDate(routine.cadence);
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-black dark:text-zinc-50">
+    <div className="mx-auto flex w-full max-w-[468px] flex-col px-[22px]">
+      <div className="flex items-end justify-between gap-3 pb-[26px] pt-9">
+        <h1 className="font-serif text-[34px] font-medium leading-[1.02] tracking-[-0.01em] text-foreground-display">
           {routine.name}
         </h1>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <Link
             href={`/routines/${routine.id}/edit`}
-            className="rounded-full border border-black/10 px-4 py-1.5 text-sm font-medium text-black hover:bg-black/[.04] dark:border-white/10 dark:text-zinc-50 dark:hover:bg-white/[.06]"
+            className="rounded-full border border-button-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
           >
             Edit
           </Link>
           <Link
             href={`/routines/${routine.id}/steps/new`}
-            className="rounded-full bg-foreground px-4 py-1.5 text-sm font-medium text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
+            className="rounded-full bg-accent px-4 py-2 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
           >
             Create New Step
           </Link>
         </div>
       </div>
 
-      <ul className="flex flex-col gap-2">
+      <div className="border-t border-hairline">
         {steps.map((step) => {
           const completions = completionsByStep.get(step.id) ?? new Set<string>();
           const checked = completions.has(cycleDate);
           const streak = computeStreak(routine.cadence, completions);
 
           return (
-            <li key={step.id} className="flex flex-col gap-1">
-              <StepCheckbox
-                routineId={routine.id}
-                stepId={step.id}
-                cadence={routine.cadence}
-                label={step.label}
-                checked={checked}
-                streak={streak}
-              />
+            <div
+              key={step.id}
+              className="flex items-center gap-3 border-b border-hairline"
+            >
+              <div className="flex-1">
+                <StepCheckbox
+                  routineId={routine.id}
+                  stepId={step.id}
+                  cadence={routine.cadence}
+                  label={step.label}
+                  checked={checked}
+                  streak={streak}
+                  bordered={false}
+                />
+              </div>
               <Link
                 href={`/routines/${routine.id}/steps/${step.id}/edit`}
-                className="self-end text-xs text-zinc-500 underline dark:text-zinc-400"
+                className="shrink-0 text-[11px] uppercase tracking-[0.05em] text-muted underline"
               >
-                Edit step
+                Edit
               </Link>
-            </li>
+            </div>
           );
         })}
         {steps.length === 0 && (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="py-4 text-[14px] text-muted">
             No steps yet — tap Create New Step above.
           </p>
         )}
-      </ul>
+      </div>
     </div>
   );
 }

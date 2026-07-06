@@ -14,13 +14,11 @@ export function DeleteUserButton({ userId }: { userId: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-full border border-red-600/30 px-4 py-1.5 text-sm font-medium text-red-600 hover:bg-red-600/10 disabled:opacity-50 dark:text-red-400"
+        className="rounded-full border border-delete-border px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06] disabled:opacity-50"
       >
         {pending ? "Deleting…" : "Delete user"}
       </button>
-      {state?.error && (
-        <p className="text-sm text-red-600 dark:text-red-400">{state.error}</p>
-      )}
+      {state?.error && <p className="text-[13px] text-delete-text">{state.error}</p>}
     </form>
   );
 }

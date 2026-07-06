@@ -19,7 +19,7 @@ export function DomainForm({
   return (
     <form action={formAction} className="flex flex-wrap items-end gap-3">
       <div className="flex flex-col gap-1">
-        <label htmlFor={`${id}-name`} className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor={`${id}-name`} className="text-[12px] text-muted">
           Name
         </label>
         <input
@@ -27,18 +27,18 @@ export function DomainForm({
           name="name"
           required
           defaultValue={initial?.name}
-          className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+          className="rounded-lg border border-card-border bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none"
         />
       </div>
       <div className="flex flex-col gap-1">
-        <label htmlFor={`${id}-color`} className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor={`${id}-color`} className="text-[12px] text-muted">
           Color
         </label>
         <select
           id={`${id}-color`}
           name="color"
           defaultValue={initial?.color ?? DOMAIN_COLORS[0]}
-          className="rounded border border-black/10 bg-background px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+          className="rounded-lg border border-card-border bg-background px-3 py-2.5 text-[15px] text-foreground outline-none"
         >
           {DOMAIN_COLORS.map((color) => (
             <option key={color} value={color}>
@@ -50,13 +50,11 @@ export function DomainForm({
       <button
         type="submit"
         disabled={pending}
-        className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition-colors hover:bg-[#383838] disabled:opacity-50 dark:hover:bg-[#ccc]"
+        className="rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {pending ? "Saving…" : submitLabel}
       </button>
-      {state?.error && (
-        <p className="w-full text-sm text-red-600 dark:text-red-400">{state.error}</p>
-      )}
+      {state?.error && <p className="w-full text-[13px] text-delete-text">{state.error}</p>}
     </form>
   );
 }

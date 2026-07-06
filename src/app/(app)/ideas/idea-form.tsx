@@ -30,7 +30,7 @@ export function IdeaForm({
     <form action={formAction} className="flex flex-col gap-3">
       <div className="flex flex-wrap gap-3">
         <div className="flex flex-1 flex-col gap-1">
-          <label htmlFor={`${id}-title`} className="text-sm text-zinc-600 dark:text-zinc-400">
+          <label htmlFor={`${id}-title`} className="text-[12px] text-muted">
             Title
           </label>
           <input
@@ -38,32 +38,32 @@ export function IdeaForm({
             name="title"
             required
             defaultValue={initial?.title}
-            className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+            className="rounded-lg border border-card-border bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none"
           />
         </div>
         <div className="flex flex-1 flex-col gap-1">
-          <label htmlFor={`${id}-tags`} className="text-sm text-zinc-600 dark:text-zinc-400">
+          <label htmlFor={`${id}-tags`} className="text-[12px] text-muted">
             Tags (comma-separated)
           </label>
           <input
             id={`${id}-tags`}
             name="tags"
             defaultValue={initial?.tags?.join(", ")}
-            className="rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+            className="rounded-lg border border-card-border bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none"
           />
         </div>
       </div>
 
       <div className="flex flex-wrap gap-3">
         <div className="flex flex-1 flex-col gap-1">
-          <label htmlFor={`${id}-stage`} className="text-sm text-zinc-600 dark:text-zinc-400">
+          <label htmlFor={`${id}-stage`} className="text-[12px] text-muted">
             Stage
           </label>
           <select
             id={`${id}-stage`}
             name="stage"
             defaultValue={initial?.stage ?? "idea"}
-            className="rounded border border-black/10 bg-background px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+            className="rounded-lg border border-card-border bg-background px-3 py-2.5 text-[15px] text-foreground outline-none"
           >
             <option value="idea">idea</option>
             <option value="drafting">drafting</option>
@@ -71,14 +71,14 @@ export function IdeaForm({
           </select>
         </div>
         <div className="flex flex-1 flex-col gap-1">
-          <label htmlFor={`${id}-priority`} className="text-sm text-zinc-600 dark:text-zinc-400">
+          <label htmlFor={`${id}-priority`} className="text-[12px] text-muted">
             Priority
           </label>
           <select
             id={`${id}-priority`}
             name="priority"
             defaultValue={initial?.priority ?? "med"}
-            className="rounded border border-black/10 bg-background px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+            className="rounded-lg border border-card-border bg-background px-3 py-2.5 text-[15px] text-foreground outline-none"
           >
             <option value="low">low</option>
             <option value="med">med</option>
@@ -88,7 +88,7 @@ export function IdeaForm({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label htmlFor={`${id}-notes`} className="text-sm text-zinc-600 dark:text-zinc-400">
+        <label htmlFor={`${id}-notes`} className="text-[12px] text-muted">
           Notes
         </label>
         <textarea
@@ -98,20 +98,18 @@ export function IdeaForm({
           rows={1}
           defaultValue={initial?.notes ?? undefined}
           onInput={(e) => autoGrow(e.currentTarget)}
-          className="resize-none overflow-hidden rounded border border-black/10 bg-transparent px-3 py-2 text-black dark:border-white/10 dark:text-zinc-50"
+          className="resize-none overflow-hidden rounded-lg border border-card-border bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none"
         />
       </div>
 
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition-colors hover:bg-[#383838] disabled:opacity-50 dark:hover:bg-[#ccc]"
+        className="self-start rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {pending ? "Saving…" : submitLabel}
       </button>
-      {state?.error && (
-        <p className="text-sm text-red-600 dark:text-red-400">{state.error}</p>
-      )}
+      {state?.error && <p className="text-[13px] text-delete-text">{state.error}</p>}
     </form>
   );
 }

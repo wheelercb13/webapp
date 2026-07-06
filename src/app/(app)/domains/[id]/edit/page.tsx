@@ -23,11 +23,13 @@ export default async function EditDomainPage({
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
-      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">
-        Edit Domain
-      </h1>
-      <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
+    <div className="mx-auto flex w-full max-w-[468px] flex-col px-[22px]">
+      <div className="pb-[26px] pt-9">
+        <h1 className="font-serif text-[34px] font-medium leading-[1.02] tracking-[-0.01em] text-foreground-display">
+          Edit Domain
+        </h1>
+      </div>
+      <div className="mb-4 rounded-xl border border-card-border p-4">
         <DomainForm
           action={updateDomain.bind(null, domain.id)}
           initial={domain}
@@ -37,7 +39,7 @@ export default async function EditDomainPage({
       <form action={deleteDomain.bind(null, domain.id)}>
         <button
           type="submit"
-          className="rounded-full border border-red-600/30 px-4 py-1.5 text-sm font-medium text-red-600 hover:bg-red-600/10 dark:text-red-400"
+          className="rounded-full border border-delete-border px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06]"
         >
           Delete domain
         </button>

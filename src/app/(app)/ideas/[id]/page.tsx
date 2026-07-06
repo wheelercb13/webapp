@@ -32,12 +32,14 @@ export default async function IdeaDetailPage({
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
-      <h1 className="text-xl font-semibold text-black dark:text-zinc-50">
-        {idea.title}
-      </h1>
+    <div className="mx-auto flex w-full max-w-[468px] flex-col px-[22px]">
+      <div className="pb-[26px] pt-9">
+        <h1 className="font-serif text-[34px] font-medium leading-[1.02] tracking-[-0.01em] text-foreground-display">
+          {idea.title}
+        </h1>
+      </div>
 
-      <div className="flex flex-col gap-2 rounded-lg border border-black/10 p-4 text-sm text-zinc-600 dark:border-white/10 dark:text-zinc-400">
+      <div className="mb-[26px] flex flex-col gap-2 rounded-xl border border-card-border p-4 text-[14px] text-muted">
         <p>Stage: {idea.stage}</p>
         <p>Priority: {idea.priority}</p>
         {idea.tags.length > 0 && <p>Tags: {idea.tags.join(", ")}</p>}
@@ -47,21 +49,21 @@ export default async function IdeaDetailPage({
       <div className="flex flex-wrap gap-2">
         <Link
           href={`/ideas/${idea.id}/edit`}
-          className="rounded-full border border-black/10 px-4 py-1.5 text-sm font-medium text-black hover:bg-black/[.04] dark:border-white/10 dark:text-zinc-50 dark:hover:bg-white/[.06]"
+          className="rounded-full border border-button-border px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
         >
           Edit
         </Link>
         {linkedTask ? (
           <Link
             href={`/domains/${linkedTask.domain_id}/tasks/${linkedTask.id}`}
-            className="rounded-full bg-foreground px-4 py-1.5 text-sm font-medium text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
+            className="rounded-full bg-accent px-4 py-2 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
           >
             View linked task
           </Link>
         ) : (
           <Link
             href={`/ideas/${idea.id}/send`}
-            className="rounded-full bg-foreground px-4 py-1.5 text-sm font-medium text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
+            className="rounded-full bg-accent px-4 py-2 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
           >
             Send to Task
           </Link>

@@ -7,34 +7,33 @@ export default async function UsersPage() {
   const users = data?.users ?? [];
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 px-6 py-10">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-black dark:text-zinc-50">Users</h1>
+    <div className="mx-auto flex w-full max-w-[468px] flex-col px-[22px]">
+      <div className="flex items-end justify-between gap-3 pb-[26px] pt-9">
+        <h1 className="font-serif text-[34px] font-medium leading-[1.02] tracking-[-0.01em] text-foreground-display">
+          Users
+        </h1>
         <Link
           href="/settings/users/new"
-          className="rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
+          className="shrink-0 rounded-full bg-accent px-4 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
         >
           Create New
         </Link>
       </div>
 
-      <ul className="flex flex-col gap-2">
+      <div className="border-t border-hairline">
         {users.map((user) => (
-          <li key={user.id}>
-            <Link
-              href={`/settings/users/${user.id}`}
-              className="flex items-center rounded-lg border border-black/10 px-4 py-3 hover:bg-black/[.02] dark:border-white/10 dark:hover:bg-white/[.04]"
-            >
-              <span className="text-black dark:text-zinc-50">{user.email}</span>
-            </Link>
-          </li>
+          <Link
+            key={user.id}
+            href={`/settings/users/${user.id}`}
+            className="flex items-center gap-3.5 border-b border-hairline py-[15px]"
+          >
+            <span className="text-[15px] text-foreground">{user.email}</span>
+          </Link>
         ))}
         {users.length === 0 && (
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            No users yet — tap Create New above.
-          </p>
+          <p className="py-4 text-[14px] text-muted">No users yet — tap Create New above.</p>
         )}
-      </ul>
+      </div>
     </div>
   );
 }
