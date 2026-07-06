@@ -120,3 +120,14 @@ export type Idea = {
   linked_task_id: string | null;
   created_at: string;
 };
+
+export type NoteSource = "manual" | "voice";
+
+export type Note = {
+  id: string;
+  user_id: string;
+  content: string;
+  tags: string[];
+  source: NoteSource;
+  created_at: string;
+};

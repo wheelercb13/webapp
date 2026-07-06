@@ -13,4 +13,5 @@ export const FUNCTION_ROUTES: Record<string, string> = {
   "/routines": "routines",
   "/inbox": "inbox",
   "/ideas": "ideas",
+  "/library": "library",
 };
