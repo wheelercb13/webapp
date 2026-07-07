@@ -5,6 +5,22 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function deleteRoutineHistory(routineHistoryId: string) {
   const supabase = await createClient();
-  await supabase.from("routine_history").delete().eq("id", routineHistoryId);
+  // Server-side guard in addition to hiding the button in the UI --
+  // active routines (source_routine_id still set) can't be deleted from
+  // History; delete the live routine from the Routines page instead.
+  await supabase
+    .from("routine_history")
+    .delete()
+    .eq("id", routineHistoryId)
+    .is("source_routine_id", null);
+  revalidatePath("/routines/history");
+}
+
+export async function resetStepCounter(stepHistoryId: string) {
+  const supabase = await createClient();
+  await supabase
+    .from("routine_step_history")
+    .update({ completion_count: 0 })
+    .eq("id", stepHistoryId);
   revalidatePath("/routines/history");
 }

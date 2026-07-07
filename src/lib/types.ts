@@ -48,6 +48,7 @@ export type Task = {
   priority: TaskPriority;
   status: TaskStatus;
   source: TaskSource;
+  sort_order: number;
   created_at: string;
   updated_at: string;
   repeat_unit: RepeatUnit | null;
@@ -105,6 +106,7 @@ export type RoutineHistory = {
   name: string;
   cadence: RoutineCadence;
   created_at: string;
+  deleted_at: string | null;
 };
 
 export type RoutineStepHistory = {
@@ -116,6 +118,7 @@ export type RoutineStepHistory = {
   longest_streak_days: number;
   streak_start_cycle_date: string | null;
   streak_end_cycle_date: string | null;
+  completion_count: number;
   updated_at: string;
 };
 

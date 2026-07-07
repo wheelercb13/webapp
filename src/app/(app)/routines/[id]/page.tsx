@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Routine, RoutineStep, RoutineCompletion } from "@/lib/types";
 import { computeStreak, currentCycleDate } from "@/lib/routines";
 import { StepCheckbox } from "@/app/(app)/routines/steps/step-checkbox";
+import { reorderStep } from "@/app/(app)/routines/steps/actions";
 
 export default async function RoutineDetailPage({
   params,
@@ -27,8 +28,7 @@ export default async function RoutineDetailPage({
     .from("routine_steps")
     .select("*")
     .eq("routine_id", id)
-    .order("sort_order", { ascending: true })
-    .order("created_at", { ascending: true })) as { data: RoutineStep[] | null };
+    .order("sort_order", { ascending: true })) as { data: RoutineStep[] | null };
 
   const steps = stepsData ?? [];
 
@@ -75,17 +75,14 @@ export default async function RoutineDetailPage({
       </div>
 
       <div className="border-t border-hairline">
-        {steps.map((step) => {
+        {steps.map((step, index) => {
           const completions = completionsByStep.get(step.id) ?? new Set<string>();
           const checked = completions.has(cycleDate);
           const streak = computeStreak(routine.cadence, completions);
 
           return (
-            <div
-              key={step.id}
-              className="flex items-center gap-3 border-b border-hairline"
-            >
-              <div className="flex-1">
+            <div key={step.id} className="flex items-center gap-2 border-b border-hairline">
+              <div className="min-w-0 flex-1">
                 <StepCheckbox
                   routineId={routine.id}
                   stepId={step.id}
@@ -98,10 +95,32 @@ export default async function RoutineDetailPage({
               </div>
               <Link
                 href={`/routines/${routine.id}/steps/${step.id}/edit`}
-                className="shrink-0 text-[11px] uppercase tracking-[0.05em] text-muted underline"
+                className="shrink-0 rounded-full border border-button-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
               >
                 Edit
               </Link>
+              <div className="flex shrink-0 flex-col gap-px">
+                <form action={reorderStep.bind(null, routine.id, step.id, "up")}>
+                  <button
+                    type="submit"
+                    disabled={index === 0}
+                    aria-label="Move up"
+                    className="flex h-[13px] w-6 items-center justify-center text-[9px] leading-none text-faint hover:text-foreground disabled:opacity-30"
+                  >
+                    ▲
+                  </button>
+                </form>
+                <form action={reorderStep.bind(null, routine.id, step.id, "down")}>
+                  <button
+                    type="submit"
+                    disabled={index === steps.length - 1}
+                    aria-label="Move down"
+                    className="flex h-[13px] w-6 items-center justify-center text-[9px] leading-none text-faint hover:text-foreground disabled:opacity-30"
+                  >
+                    ▼
+                  </button>
+                </form>
+              </div>
             </div>
           );
         })}

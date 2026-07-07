@@ -44,6 +44,15 @@ function hasEnded(event: GoogleCalendarEvent): boolean {
   return new Date(event.end.dateTime).getTime() < Date.now();
 }
 
+function isActiveNow(event: GoogleCalendarEvent): boolean {
+  if (event.start.date) return true;
+  if (!event.start.dateTime) return false;
+  const start = new Date(event.start.dateTime).getTime();
+  const end = event.end.dateTime ? new Date(event.end.dateTime).getTime() : start;
+  const now = Date.now();
+  return now >= start && now < end;
+}
+
 type TaskRow = Task & { domains: { name: string; color: TaskWithDomain["domain_color"] } | null };
 
 const PRIORITY_WEIGHT: Record<TaskPriority, number> = { high: 0, med: 1, low: 2 };
@@ -247,23 +256,37 @@ export default async function TodayPage() {
             Calendar
           </div>
           <div className="border-t border-hairline">
-            {calendarEvents.map((event) => (
-              <div
-                key={event.id}
-                className="flex items-center gap-3.5 border-b border-hairline py-3.5"
-              >
-                <span
-                  className="h-[7px] w-[7px] shrink-0 rounded-full"
-                  style={{ backgroundColor: event.calendarColor }}
-                />
-                <span className="flex-1 text-[15px] text-foreground">
-                  {event.summary || "(No title)"}
-                </span>
-                <span className="whitespace-nowrap text-[12.5px] tabular-nums text-muted">
-                  {formatEventTimeRange(event)}
-                </span>
-              </div>
-            ))}
+            {calendarEvents.map((event) => {
+              const active = isActiveNow(event);
+              return (
+                <div
+                  key={event.id}
+                  className={`flex items-center gap-3.5 border-b border-hairline py-3.5 ${
+                    active ? "-mx-2.5 rounded-lg bg-white/[.04] px-2.5" : ""
+                  }`}
+                >
+                  <span
+                    className="h-[7px] w-[7px] shrink-0 rounded-full"
+                    style={{ backgroundColor: event.calendarColor }}
+                  />
+                  <span
+                    className={`flex-1 text-[15px] ${
+                      active ? "font-medium text-accent" : "text-foreground"
+                    }`}
+                  >
+                    {event.summary || "(No title)"}
+                  </span>
+                  {active && (
+                    <span className="whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.08em] text-accent">
+                      Now
+                    </span>
+                  )}
+                  <span className="whitespace-nowrap text-[12.5px] tabular-nums text-muted">
+                    {formatEventTimeRange(event)}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

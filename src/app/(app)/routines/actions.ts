@@ -84,8 +84,15 @@ export async function updateRoutine(
 
 export async function deleteRoutine(routineId: string) {
   const supabase = await createClient();
+
+  await supabase
+    .from("routine_history")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("source_routine_id", routineId);
+
   await supabase.from("routines").delete().eq("id", routineId);
   revalidatePath("/routines");
+  revalidatePath("/routines/history");
   revalidatePath("/");
   redirect("/routines", "replace");
 }

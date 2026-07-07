@@ -148,3 +148,23 @@ export async function recordStreakIfBest(
       .eq("id", stepHistoryId);
   }
 }
+
+// Manually-resettable tally, separate from the completion history and
+// streak math -- call only when a step transitions to completed (not on
+// uncheck), so it behaves like a simple counter rather than tracking
+// real attendance.
+export async function incrementStepCounter(supabase: SupabaseClient, stepId: string) {
+  const stepHistoryId = await ensureRoutineStepHistory(supabase, stepId);
+  if (!stepHistoryId) return;
+
+  const { data: current } = await supabase
+    .from("routine_step_history")
+    .select("completion_count")
+    .eq("id", stepHistoryId)
+    .single();
+
+  await supabase
+    .from("routine_step_history")
+    .update({ completion_count: (current?.completion_count ?? 0) + 1 })
+    .eq("id", stepHistoryId);
+}

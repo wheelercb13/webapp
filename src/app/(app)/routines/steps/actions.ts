@@ -8,8 +8,9 @@ import {
   recordStepCreated,
   syncRoutineStepHistorySnapshot,
   recordStreakIfBest,
+  incrementStepCounter,
 } from "@/lib/routine-history";
-import type { RoutineCadence } from "@/lib/types";
+import type { RoutineCadence, RoutineStep } from "@/lib/types";
 
 export type StepFormState = { error?: string } | undefined;
 
@@ -31,9 +32,19 @@ export async function createStep(
   }
 
   const supabase = await createClient();
+
+  const { data: last } = (await supabase
+    .from("routine_steps")
+    .select("sort_order")
+    .eq("routine_id", routineId)
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle()) as { data: Pick<RoutineStep, "sort_order"> | null };
+  const sortOrder = (last?.sort_order ?? 0) + 1;
+
   const { data, error } = await supabase
     .from("routine_steps")
-    .insert({ routine_id: routineId, label })
+    .insert({ routine_id: routineId, label, sort_order: sortOrder })
     .select()
     .single();
 
@@ -82,6 +93,35 @@ export async function deleteStep(routineId: string, stepId: string) {
   redirect(`/routines/${routineId}`, "replace");
 }
 
+export async function reorderStep(routineId: string, stepId: string, direction: "up" | "down") {
+  const supabase = await createClient();
+  const { data } = (await supabase
+    .from("routine_steps")
+    .select("id, sort_order")
+    .eq("routine_id", routineId)
+    .order("sort_order", { ascending: true })) as {
+    data: Pick<RoutineStep, "id" | "sort_order">[] | null;
+  };
+
+  const steps = data ?? [];
+  const index = steps.findIndex((s) => s.id === stepId);
+  const swapIndex = direction === "up" ? index - 1 : index + 1;
+
+  if (index === -1 || swapIndex < 0 || swapIndex >= steps.length) {
+    return;
+  }
+
+  const current = steps[index];
+  const swap = steps[swapIndex];
+
+  await Promise.all([
+    supabase.from("routine_steps").update({ sort_order: swap.sort_order }).eq("id", current.id),
+    supabase.from("routine_steps").update({ sort_order: current.sort_order }).eq("id", swap.id),
+  ]);
+
+  revalidateRoutinePaths(routineId);
+}
+
 export async function toggleStepCompletion(
   routineId: string,
   stepId: string,
@@ -101,6 +141,7 @@ export async function toggleStepCompletion(
     await supabase
       .from("routine_completions")
       .insert({ routine_step_id: stepId, cycle_date: cycleDate });
+    await incrementStepCounter(supabase, stepId);
   }
 
   await recordStreakIfBest(supabase, stepId, cadence);

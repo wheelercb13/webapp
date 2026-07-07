@@ -5,6 +5,7 @@ import type { Domain, Task } from "@/lib/types";
 import { DOMAIN_COLOR_CLASSES } from "@/lib/colors";
 import { completedTaskCutoffIso } from "@/lib/task-retention";
 import { TaskRow } from "@/app/(app)/tasks/task-row";
+import { reorderTask } from "@/app/(app)/tasks/actions";
 
 export default async function DomainDetailPage({
   params,
@@ -35,8 +36,7 @@ export default async function DomainDetailPage({
     .from("tasks")
     .select("*")
     .eq("domain_id", id)
-    .order("due_date", { ascending: true, nullsFirst: false })
-    .order("created_at", { ascending: true })) as { data: Task[] | null };
+    .order("sort_order", { ascending: true })) as { data: Task[] | null };
 
   const tasks = tasksData ?? [];
   const activeTasks = tasks.filter((t) => t.status === "open");
@@ -72,8 +72,34 @@ export default async function DomainDetailPage({
           Active
         </h2>
         <div className="flex flex-col gap-2.5">
-          {activeTasks.map((task) => (
-            <TaskRow key={task.id} task={task} />
+          {activeTasks.map((task, index) => (
+            <div key={task.id} className="flex items-center gap-2">
+              <div className="min-w-0 flex-1">
+                <TaskRow task={task} />
+              </div>
+              <div className="flex shrink-0 flex-col gap-px">
+                <form action={reorderTask.bind(null, id, task.id, "up")}>
+                  <button
+                    type="submit"
+                    disabled={index === 0}
+                    aria-label="Move up"
+                    className="flex h-[13px] w-6 items-center justify-center text-[9px] leading-none text-faint hover:text-foreground disabled:opacity-30"
+                  >
+                    ▲
+                  </button>
+                </form>
+                <form action={reorderTask.bind(null, id, task.id, "down")}>
+                  <button
+                    type="submit"
+                    disabled={index === activeTasks.length - 1}
+                    aria-label="Move down"
+                    className="flex h-[13px] w-6 items-center justify-center text-[9px] leading-none text-faint hover:text-foreground disabled:opacity-30"
+                  >
+                    ▼
+                  </button>
+                </form>
+              </div>
+            </div>
           ))}
           {activeTasks.length === 0 && (
             <p className="text-[14px] text-muted">No active tasks in this domain.</p>

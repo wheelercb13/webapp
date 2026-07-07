@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { nextOccurrence } from "@/lib/recurrence";
 import type { RepeatUnit } from "@/lib/recurrence";
-import type { TaskPriority } from "@/lib/types";
+import type { Task, TaskPriority } from "@/lib/types";
 
 function revalidateTaskPaths(domainId: string, taskId?: string) {
   revalidatePath("/");
@@ -65,12 +65,23 @@ export async function createTask(
   }
 
   const supabase = await createClient();
+
+  const { data: last } = (await supabase
+    .from("tasks")
+    .select("sort_order")
+    .eq("domain_id", domainId)
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle()) as { data: Pick<Task, "sort_order"> | null };
+  const sortOrder = (last?.sort_order ?? 0) + 1;
+
   const { error } = await supabase.from("tasks").insert({
     domain_id: domainId,
     title,
     notes,
     due_date,
     priority,
+    sort_order: sortOrder,
     ...repeatFields,
   });
 
@@ -154,4 +165,34 @@ export async function deleteTask(domainId: string, taskId: string) {
   await supabase.from("tasks").delete().eq("id", taskId);
   revalidateTaskPaths(domainId, taskId);
   redirect(`/domains/${domainId}`, "replace");
+}
+
+export async function reorderTask(domainId: string, taskId: string, direction: "up" | "down") {
+  const supabase = await createClient();
+  const { data } = (await supabase
+    .from("tasks")
+    .select("id, sort_order")
+    .eq("domain_id", domainId)
+    .eq("status", "open")
+    .order("sort_order", { ascending: true })) as {
+    data: Pick<Task, "id" | "sort_order">[] | null;
+  };
+
+  const tasks = data ?? [];
+  const index = tasks.findIndex((t) => t.id === taskId);
+  const swapIndex = direction === "up" ? index - 1 : index + 1;
+
+  if (index === -1 || swapIndex < 0 || swapIndex >= tasks.length) {
+    return;
+  }
+
+  const current = tasks[index];
+  const swap = tasks[swapIndex];
+
+  await Promise.all([
+    supabase.from("tasks").update({ sort_order: swap.sort_order }).eq("id", current.id),
+    supabase.from("tasks").update({ sort_order: current.sort_order }).eq("id", swap.id),
+  ]);
+
+  revalidateTaskPaths(domainId);
 }
