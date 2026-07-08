@@ -39,7 +39,10 @@ export async function captureInboxItem(
 
 export async function resolveInboxItem(id: string) {
   const supabase = await createClient();
-  await supabase.from("inbox_items").update({ resolved: true }).eq("id", id);
+  await supabase
+    .from("inbox_items")
+    .update({ resolved: true, resolved_at: new Date().toISOString() })
+    .eq("id", id);
   revalidatePath("/inbox");
 }
 
@@ -89,7 +92,7 @@ export async function convertInboxToTask(
 
   await supabase
     .from("inbox_items")
-    .update({ resolved: true, resolved_into: "task" })
+    .update({ resolved: true, resolved_into: "task", resolved_at: new Date().toISOString() })
     .eq("id", inboxItemId);
 
   revalidatePath("/inbox");
@@ -126,7 +129,7 @@ export async function convertInboxToIdea(
 
   await supabase
     .from("inbox_items")
-    .update({ resolved: true, resolved_into: "idea" })
+    .update({ resolved: true, resolved_into: "idea", resolved_at: new Date().toISOString() })
     .eq("id", inboxItemId);
 
   revalidatePath("/inbox");
@@ -155,7 +158,7 @@ export async function convertInboxToNote(
 
   await supabase
     .from("inbox_items")
-    .update({ resolved: true, resolved_into: "note" })
+    .update({ resolved: true, resolved_into: "note", resolved_at: new Date().toISOString() })
     .eq("id", inboxItemId);
 
   revalidatePath("/inbox");

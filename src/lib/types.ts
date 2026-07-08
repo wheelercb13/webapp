@@ -131,6 +131,7 @@ export type InboxItem = {
   captured_at: string;
   resolved: boolean;
   resolved_into: InboxResolution | null;
+  resolved_at: string | null;
 };
 
 export type IdeaStage = "idea" | "drafting" | "published";
