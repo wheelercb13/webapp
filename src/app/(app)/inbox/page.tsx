@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type { InboxItem } from "@/lib/types";
 import { CaptureForm } from "./capture-form";
+import { ConvertMenu } from "./convert-menu";
 import { resolveInboxItem, deleteInboxItem } from "./actions";
 
 export default async function InboxPage() {
@@ -32,10 +33,11 @@ export default async function InboxPage() {
         {items.map((item) => (
           <div
             key={item.id}
-            className="flex items-center gap-3.5 border-b border-hairline py-[15px]"
+            className="flex flex-col gap-2.5 border-b border-hairline py-[15px]"
           >
-            <span className="flex-1 text-[15px] text-foreground">{item.raw_text}</span>
-            <div className="flex shrink-0 gap-2">
+            <span className="text-[15px] text-foreground">{item.raw_text}</span>
+            <div className="flex flex-wrap gap-1.5">
+              <ConvertMenu itemId={item.id} />
               <form action={resolveInboxItem.bind(null, item.id)}>
                 <button
                   type="submit"
