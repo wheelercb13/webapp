@@ -2,8 +2,17 @@
 // server's (UTC on Vercel), which can be several hours ahead in the evening.
 export const APP_TIMEZONE = "America/New_York";
 
+export function zonedDateString(date: Date, timeZone: string = APP_TIMEZONE): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone }).format(date);
+}
+
 export function todayString(timeZone: string = APP_TIMEZONE): string {
-  return new Intl.DateTimeFormat("en-CA", { timeZone }).format(new Date());
+  return zonedDateString(new Date(), timeZone);
+}
+
+// 0 = Sunday .. 6 = Saturday, in the app's fixed timezone.
+export function zonedWeekday(timeZone: string = APP_TIMEZONE): number {
+  return toUtcDate(todayString(timeZone)).getUTCDay();
 }
 
 export function toUtcDate(dateString: string): Date {
@@ -13,6 +22,13 @@ export function toUtcDate(dateString: string): Date {
 
 export function toDateString(date: Date): string {
   return date.toISOString().slice(0, 10);
+}
+
+// Converts a YYYY-MM-DD date (or an ISO timestamp -- only its date portion
+// is used) into MM-DD-YYYY for display everywhere in the UI.
+export function formatDateDisplay(dateString: string): string {
+  const [year, month, day] = dateString.slice(0, 10).split("-");
+  return `${month}-${day}-${year}`;
 }
 
 function getTimeZoneOffsetMs(date: Date, timeZone: string): number {

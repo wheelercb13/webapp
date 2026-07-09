@@ -51,7 +51,7 @@ export default async function CalendarPage({
             <form action={disconnectCalendar}>
               <button
                 type="submit"
-                className="rounded-full border border-delete-border px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06]"
+                className="rounded-full border border-delete-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06]"
               >
                 Disconnect
               </button>

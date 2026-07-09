@@ -35,9 +35,9 @@ export default async function EditIdeaPage({
       <form action={deleteIdea.bind(null, idea.id)}>
         <button
           type="submit"
-          className="rounded-full border border-delete-border px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06]"
+          className="rounded-full border border-delete-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06]"
         >
-          Delete idea
+          Delete
         </button>
       </form>
     </div>

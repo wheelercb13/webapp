@@ -31,6 +31,10 @@ export async function createStep(
     return { error: "Label is required." };
   }
 
+  const weekdayRaw = formData.get("weekday") as string | null;
+  const weekday = weekdayRaw !== null && weekdayRaw !== "" ? Number(weekdayRaw) : null;
+  const only_show_on_weekday = formData.get("onlyShowOnWeekday") === "on";
+
   const supabase = await createClient();
 
   const { data: last } = (await supabase
@@ -44,7 +48,7 @@ export async function createStep(
 
   const { data, error } = await supabase
     .from("routine_steps")
-    .insert({ routine_id: routineId, label, sort_order: sortOrder })
+    .insert({ routine_id: routineId, label, sort_order: sortOrder, weekday, only_show_on_weekday })
     .select()
     .single();
 
@@ -70,10 +74,14 @@ export async function updateStep(
     return { error: "Label is required." };
   }
 
+  const weekdayRaw = formData.get("weekday") as string | null;
+  const weekday = weekdayRaw !== null && weekdayRaw !== "" ? Number(weekdayRaw) : null;
+  const only_show_on_weekday = formData.get("onlyShowOnWeekday") === "on";
+
   const supabase = await createClient();
   const { error } = await supabase
     .from("routine_steps")
-    .update({ label })
+    .update({ label, weekday, only_show_on_weekday })
     .eq("id", stepId);
 
   if (error) {
@@ -126,10 +134,11 @@ export async function toggleStepCompletion(
   routineId: string,
   stepId: string,
   cadence: RoutineCadence,
+  weekday: number | null,
   currentlyCompleted: boolean
 ) {
   const supabase = await createClient();
-  const cycleDate = currentCycleDate(cadence);
+  const cycleDate = currentCycleDate(cadence, weekday);
 
   if (currentlyCompleted) {
     await supabase

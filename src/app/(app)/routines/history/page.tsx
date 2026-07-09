@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Routine, RoutineHistory, RoutineStepHistory } from "@/lib/types";
-import { deleteRoutineHistory, resetStepCounter } from "./actions";
+import type { Routine, RoutineHistory, RoutineStep, RoutineStepHistory } from "@/lib/types";
+import { formatDateDisplay } from "@/lib/date";
+import { deleteRoutineHistory, resetStepStreak } from "./actions";
 
 export default async function RoutineHistoryPage() {
   const supabase = await createClient();
@@ -33,6 +34,11 @@ export default async function RoutineHistoryPage() {
       return aTime - bTime;
     });
 
+  const { data: liveStepsData } = (await supabase
+    .from("routine_steps")
+    .select("id, sort_order")) as { data: Pick<RoutineStep, "id" | "sort_order">[] | null };
+  const liveStepSortOrder = new Map((liveStepsData ?? []).map((s) => [s.id, s.sort_order]));
+
   const historyIds = allHistories.map((h) => h.id);
   const { data: stepHistoryData } =
     historyIds.length > 0
@@ -49,6 +55,22 @@ export default async function RoutineHistoryPage() {
     stepsByRoutine.set(step.routine_history_id, list);
   }
 
+  // Active routines keep the live step order (matches the Routine page,
+  // re-sorts automatically if steps are reordered there). Steps whose live
+  // row no longer exists (deleted step, or the whole routine was deleted)
+  // have no sort_order to anchor to, so they fall back to alphabetical --
+  // stable across reloads, unlike leaving the DB's unspecified row order.
+  for (const list of stepsByRoutine.values()) {
+    list.sort((a, b) => {
+      const aOrder = a.source_step_id ? liveStepSortOrder.get(a.source_step_id) : undefined;
+      const bOrder = b.source_step_id ? liveStepSortOrder.get(b.source_step_id) : undefined;
+      if (aOrder !== undefined && bOrder !== undefined) return aOrder - bOrder;
+      if (aOrder !== undefined) return -1;
+      if (bOrder !== undefined) return 1;
+      return a.step_label.localeCompare(b.step_label);
+    });
+  }
+
   function renderRoutine(routine: RoutineHistory, isActive: boolean) {
     return (
       <div
@@ -59,31 +81,39 @@ export default async function RoutineHistoryPage() {
           <div>
             <p className="text-[15px] text-foreground">{routine.name}</p>
             <p className="text-[12px] text-muted">
-              {routine.cadence} · created {routine.created_at.slice(0, 10)}
-              {!isActive && routine.deleted_at && ` · deleted ${routine.deleted_at.slice(0, 10)}`}
+              {routine.cadence} · created {formatDateDisplay(routine.created_at)}
+              {!isActive &&
+                routine.deleted_at &&
+                ` · deleted ${formatDateDisplay(routine.deleted_at)}`}
             </p>
           </div>
           {!isActive && (
             <form action={deleteRoutineHistory.bind(null, routine.id)}>
               <button
                 type="submit"
-                className="shrink-0 rounded-full border border-delete-border px-3.5 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06]"
+                className="shrink-0 rounded-full border border-delete-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06]"
               >
                 Delete
               </button>
             </form>
           )}
         </div>
-        <div className="flex flex-col gap-2.5 border-t border-hairline pt-2">
-          {(stepsByRoutine.get(routine.id) ?? []).map((step) => (
-            <div key={step.id} className="flex items-center justify-between gap-3">
+        <div className="flex flex-col gap-0.5 border-t border-hairline pt-2">
+          {(stepsByRoutine.get(routine.id) ?? []).map((step, index) => (
+            <div
+              key={step.id}
+              className={`flex items-start justify-between gap-3 rounded-lg px-2.5 py-2 ${
+                index % 2 === 1 ? "bg-white/[.03]" : ""
+              }`}
+            >
               <div>
-                <p className="text-[13px] text-muted">
-                  {step.step_label}:{" "}
+                <p className="text-[13px] text-foreground">{step.step_label}</p>
+                <p className="text-[12px] text-muted">
                   {step.longest_streak_days > 0 ? (
                     <>
-                      {step.longest_streak_days}-day streak ({step.streak_start_cycle_date} →{" "}
-                      {step.streak_end_cycle_date})
+                      {step.longest_streak_days}-day streak (
+                      {formatDateDisplay(step.streak_start_cycle_date!)} →{" "}
+                      {formatDateDisplay(step.streak_end_cycle_date!)})
                     </>
                   ) : (
                     "no streak yet"
@@ -92,14 +122,16 @@ export default async function RoutineHistoryPage() {
                 {isActive && (
                   <p className="text-[12px] text-muted">
                     Completed {step.completion_count} time{step.completion_count === 1 ? "" : "s"}
+                    {step.streak_start_cycle_date &&
+                      ` · Last Reset ${formatDateDisplay(step.streak_start_cycle_date)}`}
                   </p>
                 )}
               </div>
               {isActive && (
-                <form action={resetStepCounter.bind(null, step.id)}>
+                <form action={resetStepStreak.bind(null, step.id)}>
                   <button
                     type="submit"
-                    className="shrink-0 rounded-full border border-button-border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
+                    className="shrink-0 rounded-full border border-button-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
                   >
                     Reset
                   </button>

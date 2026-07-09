@@ -8,6 +8,7 @@ export function StepCheckbox({
   routineId,
   stepId,
   cadence,
+  weekday,
   label,
   checked,
   streak,
@@ -17,6 +18,7 @@ export function StepCheckbox({
   routineId: string;
   stepId: string;
   cadence: RoutineCadence;
+  weekday: number | null;
   label: string;
   checked: boolean;
   streak: number;
@@ -27,7 +29,7 @@ export function StepCheckbox({
 
   function handleChange() {
     startTransition(() => {
-      toggleStepCompletion(routineId, stepId, cadence, checked);
+      toggleStepCompletion(routineId, stepId, cadence, weekday, checked);
     });
   }
 

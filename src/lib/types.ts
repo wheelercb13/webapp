@@ -88,6 +88,8 @@ export type RoutineStep = {
   routine_id: string;
   label: string;
   sort_order: number;
+  weekday: number | null;
+  only_show_on_weekday: boolean;
   created_at: string;
 };
 

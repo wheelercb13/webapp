@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type { InboxItem } from "@/lib/types";
+import { formatDateDisplay } from "@/lib/date";
 import { resolvedInboxCutoffIso } from "@/lib/inbox-retention";
 import { CaptureForm } from "./capture-form";
 import { ConvertMenu } from "./convert-menu";
@@ -57,7 +58,7 @@ export default async function InboxPage() {
                 <form action={resolveInboxItem.bind(null, item.id)}>
                   <button
                     type="submit"
-                    className="rounded-full border border-button-border px-[11px] py-[5px] text-[10px] font-semibold uppercase tracking-[0.05em] text-foreground transition-colors hover:bg-white/[.06]"
+                    className="rounded-full border border-button-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
                   >
                     Resolve
                   </button>
@@ -65,7 +66,7 @@ export default async function InboxPage() {
                 <form action={deleteInboxItem.bind(null, item.id)}>
                   <button
                     type="submit"
-                    className="rounded-full border border-delete-border px-[11px] py-[5px] text-[10px] font-semibold uppercase tracking-[0.05em] text-delete-text transition-colors hover:bg-white/[.06]"
+                    className="rounded-full border border-delete-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06]"
                   >
                     Delete
                   </button>
@@ -93,12 +94,12 @@ export default async function InboxPage() {
             <span className="text-[15px] text-foreground">{item.raw_text}</span>
             <div className="flex items-center justify-between gap-3">
               <span className="text-[12px] text-muted">
-                Resolved {item.resolved_at ? item.resolved_at.slice(0, 10) : ""}
+                Resolved {item.resolved_at ? formatDateDisplay(item.resolved_at) : ""}
               </span>
               <form action={deleteInboxItem.bind(null, item.id)}>
                 <button
                   type="submit"
-                  className="shrink-0 rounded-full border border-delete-border px-[11px] py-[5px] text-[10px] font-semibold uppercase tracking-[0.05em] text-delete-text transition-colors hover:bg-white/[.06]"
+                  className="shrink-0 rounded-full border border-delete-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06]"
                 >
                   Delete
                 </button>

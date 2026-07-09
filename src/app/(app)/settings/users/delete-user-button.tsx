@@ -14,9 +14,9 @@ export function DeleteUserButton({ userId }: { userId: string }) {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-full border border-delete-border px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06] disabled:opacity-50"
+        className="rounded-full border border-delete-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06] disabled:opacity-50"
       >
-        {pending ? "Deleting…" : "Delete user"}
+        {pending ? "Deleting…" : "Delete"}
       </button>
       {state?.error && <p className="text-[13px] text-delete-text">{state.error}</p>}
     </form>

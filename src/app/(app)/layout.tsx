@@ -3,7 +3,7 @@ import { logout } from "@/app/actions";
 import { FUNCTION_ROUTES } from "@/lib/access";
 import type { FunctionAccess } from "@/lib/types";
 import { BackButton } from "@/components/back-button";
-import { BottomNav } from "@/components/bottom-nav";
+import { NavMenu } from "@/components/nav-menu";
 
 export default async function AppLayout({
   children,
@@ -35,7 +35,7 @@ export default async function AppLayout({
     { href: "/", label: "Today" },
     ...(canAccess("/inbox") ? [{ href: "/inbox", label: "Inbox" }] : []),
     ...(canAccess("/ideas") ? [{ href: "/ideas", label: "Ideas" }] : []),
-    ...(canAccess("/domains") ? [{ href: "/domains", label: "Domains" }] : []),
+    ...(canAccess("/domains") ? [{ href: "/domains", label: "Tasks" }] : []),
     ...(canAccess("/routines") ? [{ href: "/routines", label: "Routines" }] : []),
     ...(canAccess("/library") ? [{ href: "/library", label: "Library" }] : []),
     ...(isAdmin ? [{ href: "/settings", label: "Settings" }] : []),
@@ -62,9 +62,9 @@ export default async function AppLayout({
         </div>
       </header>
 
-      <main className="flex flex-1 flex-col pb-[130px]">{children}</main>
+      <main className="flex flex-1 flex-col pb-24">{children}</main>
 
-      <BottomNav items={navItems} />
+      <NavMenu items={navItems} />
     </div>
   );
 }

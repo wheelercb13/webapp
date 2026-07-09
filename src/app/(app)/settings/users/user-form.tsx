@@ -25,31 +25,33 @@ export function UserForm({
   const id = useId();
 
   return (
-    <form action={formAction} className="flex flex-col gap-3">
-      <div className="flex flex-col gap-1">
-        <label htmlFor={`${id}-name`} className="text-[12px] text-muted">
-          Name
-        </label>
-        <input
-          id={`${id}-name`}
-          name="name"
-          required
-          defaultValue={initialName}
-          className="rounded-lg border border-card-border bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none"
-        />
-      </div>
-      <div className="flex flex-col gap-1">
-        <label htmlFor={`${id}-email`} className="text-[12px] text-muted">
-          Email
-        </label>
-        <input
-          id={`${id}-email`}
-          name="email"
-          type="email"
-          required
-          defaultValue={initialEmail}
-          className="rounded-lg border border-card-border bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none"
-        />
+    <form action={formAction} className="flex flex-col gap-4">
+      <div className="flex items-end gap-4">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <label htmlFor={`${id}-name`} className="text-[12px] text-muted">
+            Name
+          </label>
+          <input
+            id={`${id}-name`}
+            name="name"
+            required
+            defaultValue={initialName}
+            className="rounded-lg border border-card-border bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none"
+          />
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <label htmlFor={`${id}-email`} className="text-[12px] text-muted">
+            Email
+          </label>
+          <input
+            id={`${id}-email`}
+            name="email"
+            type="email"
+            required
+            defaultValue={initialEmail}
+            className="rounded-lg border border-card-border bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none"
+          />
+        </div>
       </div>
       <PasswordInput
         id={`${id}-password`}
@@ -79,7 +81,7 @@ export function UserForm({
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+        className="self-end rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {pending ? "Saving…" : submitLabel}
       </button>

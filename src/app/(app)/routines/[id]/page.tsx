@@ -50,8 +50,6 @@ export default async function RoutineDetailPage({
     completionsByStep.set(completion.routine_step_id, set);
   }
 
-  const cycleDate = currentCycleDate(routine.cadence);
-
   return (
     <div className="mx-auto flex w-full max-w-[468px] flex-col px-[22px]">
       <div className="flex items-end justify-between gap-3 pb-[26px] pt-9">
@@ -77,8 +75,9 @@ export default async function RoutineDetailPage({
       <div className="border-t border-hairline">
         {steps.map((step, index) => {
           const completions = completionsByStep.get(step.id) ?? new Set<string>();
+          const cycleDate = currentCycleDate(routine.cadence, step.weekday);
           const checked = completions.has(cycleDate);
-          const streak = computeStreak(routine.cadence, completions);
+          const streak = computeStreak(routine.cadence, step.weekday, completions);
 
           return (
             <div key={step.id} className="flex items-center gap-2 border-b border-hairline">
@@ -87,6 +86,7 @@ export default async function RoutineDetailPage({
                   routineId={routine.id}
                   stepId={step.id}
                   cadence={routine.cadence}
+                  weekday={step.weekday}
                   label={step.label}
                   checked={checked}
                   streak={streak}

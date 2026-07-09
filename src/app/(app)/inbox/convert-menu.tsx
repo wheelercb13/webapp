@@ -14,7 +14,7 @@ export function ConvertMenu({ itemId }: { itemId: string }) {
           router.push(`/inbox/${itemId}/send/${target}`);
         }
       }}
-      className="rounded-lg border border-card-border bg-background px-3 py-2.5 text-[15px] text-foreground outline-none"
+      className="rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
     >
       <option value="" disabled>
         Convert…

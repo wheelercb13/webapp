@@ -27,9 +27,9 @@ export function IdeaForm({
   }, []);
 
   return (
-    <form action={formAction} className="flex flex-col gap-3">
-      <div className="flex flex-wrap gap-3">
-        <div className="flex flex-1 flex-col gap-1">
+    <form action={formAction} className="flex flex-col gap-4">
+      <div className="flex items-end gap-4">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
           <label htmlFor={`${id}-title`} className="text-[12px] text-muted">
             Title
           </label>
@@ -41,7 +41,7 @@ export function IdeaForm({
             className="rounded-lg border border-card-border bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none"
           />
         </div>
-        <div className="flex flex-1 flex-col gap-1">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
           <label htmlFor={`${id}-tags`} className="text-[12px] text-muted">
             Tags (comma-separated)
           </label>
@@ -54,8 +54,8 @@ export function IdeaForm({
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-3">
-        <div className="flex flex-1 flex-col gap-1">
+      <div className="flex items-end justify-between gap-4">
+        <div className="flex flex-col gap-1">
           <label htmlFor={`${id}-stage`} className="text-[12px] text-muted">
             Stage
           </label>
@@ -63,14 +63,14 @@ export function IdeaForm({
             id={`${id}-stage`}
             name="stage"
             defaultValue={initial?.stage ?? "idea"}
-            className="rounded-lg border border-card-border bg-background px-3 py-2.5 text-[15px] text-foreground outline-none"
+            className="rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
           >
             <option value="idea">idea</option>
             <option value="drafting">drafting</option>
             <option value="published">published</option>
           </select>
         </div>
-        <div className="flex flex-1 flex-col gap-1">
+        <div className="flex flex-col gap-1">
           <label htmlFor={`${id}-priority`} className="text-[12px] text-muted">
             Priority
           </label>
@@ -78,7 +78,7 @@ export function IdeaForm({
             id={`${id}-priority`}
             name="priority"
             defaultValue={initial?.priority ?? "med"}
-            className="rounded-lg border border-card-border bg-background px-3 py-2.5 text-[15px] text-foreground outline-none"
+            className="rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
           >
             <option value="low">low</option>
             <option value="med">med</option>
@@ -105,7 +105,7 @@ export function IdeaForm({
       <button
         type="submit"
         disabled={pending}
-        className="self-start rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+        className="self-end rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {pending ? "Saving…" : submitLabel}
       </button>

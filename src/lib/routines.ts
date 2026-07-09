@@ -1,20 +1,23 @@
 import { APP_TIMEZONE, todayString, toUtcDate, toDateString } from "./date";
 import type { RoutineCadence } from "./types";
 
-// Monday-anchored week, computed in the app's fixed timezone.
-function currentWeekStart(timeZone: string = APP_TIMEZONE): string {
+// Week anchored to a given weekday (0=Sun..6=Sat), computed in the app's
+// fixed timezone. Steps without their own weekday anchor to Monday (1),
+// matching the routine-wide default this replaced.
+function currentWeekStart(anchorWeekday: number, timeZone: string = APP_TIMEZONE): string {
   const date = toUtcDate(todayString(timeZone));
   const dayOfWeek = date.getUTCDay(); // 0 = Sunday
-  const daysSinceMonday = (dayOfWeek + 6) % 7;
-  date.setUTCDate(date.getUTCDate() - daysSinceMonday);
+  const daysSinceAnchor = (dayOfWeek - anchorWeekday + 7) % 7;
+  date.setUTCDate(date.getUTCDate() - daysSinceAnchor);
   return toDateString(date);
 }
 
 export function currentCycleDate(
   cadence: RoutineCadence,
+  weekday: number | null = 1,
   timeZone: string = APP_TIMEZONE
 ): string {
-  return cadence === "daily" ? todayString(timeZone) : currentWeekStart(timeZone);
+  return cadence === "daily" ? todayString(timeZone) : currentWeekStart(weekday ?? 1, timeZone);
 }
 
 export function previousCycleDate(cadence: RoutineCadence, cycleDate: string): string {
@@ -29,10 +32,11 @@ export function previousCycleDate(cadence: RoutineCadence, cycleDate: string): s
 // to zero on the next completion.
 export function computeStreak(
   cadence: RoutineCadence,
+  weekday: number | null,
   completedCycleDates: Set<string>,
   timeZone: string = APP_TIMEZONE
 ): number {
-  let cursor = currentCycleDate(cadence, timeZone);
+  let cursor = currentCycleDate(cadence, weekday, timeZone);
   if (!completedCycleDates.has(cursor)) {
     cursor = previousCycleDate(cadence, cursor);
   }

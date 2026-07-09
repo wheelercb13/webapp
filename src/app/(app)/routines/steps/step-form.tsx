@@ -1,23 +1,35 @@
 "use client";
 
 import { useActionState, useId } from "react";
-import type { RoutineStep } from "@/lib/types";
+import type { RoutineCadence, RoutineStep } from "@/lib/types";
 import type { StepFormState } from "./actions";
+
+const WEEKDAYS = [
+  { value: 0, label: "Sunday" },
+  { value: 1, label: "Monday" },
+  { value: 2, label: "Tuesday" },
+  { value: 3, label: "Wednesday" },
+  { value: 4, label: "Thursday" },
+  { value: 5, label: "Friday" },
+  { value: 6, label: "Saturday" },
+];
 
 export function StepForm({
   action,
+  cadence,
   initial,
   submitLabel,
 }: {
   action: (state: StepFormState, formData: FormData) => Promise<StepFormState>;
-  initial?: Pick<RoutineStep, "label">;
+  cadence: RoutineCadence;
+  initial?: Pick<RoutineStep, "label" | "weekday" | "only_show_on_weekday">;
   submitLabel: string;
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
   const id = useId();
 
   return (
-    <form action={formAction} className="flex flex-wrap items-end gap-3">
+    <form action={formAction} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
         <label htmlFor={`${id}-label`} className="text-[12px] text-muted">
           Label
@@ -30,14 +42,57 @@ export function StepForm({
           className="rounded-lg border border-card-border bg-transparent px-3 py-2.5 text-[15px] text-foreground outline-none"
         />
       </div>
-      <button
-        type="submit"
-        disabled={pending}
-        className="rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
-      >
-        {pending ? "Saving…" : submitLabel}
-      </button>
-      {state?.error && <p className="w-full text-[13px] text-delete-text">{state.error}</p>}
+
+      {cadence === "weekly" && (
+        <>
+          <div className="flex items-end justify-between gap-4">
+            <div className="flex flex-col gap-1">
+              <label htmlFor={`${id}-weekday`} className="text-[12px] text-muted">
+                Repeats on
+              </label>
+              <select
+                id={`${id}-weekday`}
+                name="weekday"
+                defaultValue={initial?.weekday ?? 1}
+                className="rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
+              >
+                {WEEKDAYS.map((day) => (
+                  <option key={day.value} value={day.value}>
+                    {day.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button
+              type="submit"
+              disabled={pending}
+              className="rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+            >
+              {pending ? "Saving…" : submitLabel}
+            </button>
+          </div>
+          <label className="flex items-center gap-2 text-[13px] text-foreground">
+            <input
+              type="checkbox"
+              name="onlyShowOnWeekday"
+              defaultChecked={initial?.only_show_on_weekday ?? false}
+              className="h-4 w-4"
+            />
+            Only show on that day
+          </label>
+        </>
+      )}
+
+      {cadence !== "weekly" && (
+        <button
+          type="submit"
+          disabled={pending}
+          className="self-end rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
+          {pending ? "Saving…" : submitLabel}
+        </button>
+      )}
+      {state?.error && <p className="text-[13px] text-delete-text">{state.error}</p>}
     </form>
   );
 }

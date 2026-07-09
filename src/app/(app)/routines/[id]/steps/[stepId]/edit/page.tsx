@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { RoutineStep } from "@/lib/types";
+import type { Routine, RoutineStep } from "@/lib/types";
 import { updateStep, deleteStep } from "@/app/(app)/routines/steps/actions";
 import { StepForm } from "@/app/(app)/routines/steps/step-form";
 
@@ -11,6 +11,16 @@ export default async function EditStepPage({
 }) {
   const { id: routineId, stepId } = await params;
   const supabase = await createClient();
+
+  const { data: routine } = (await supabase
+    .from("routines")
+    .select("*")
+    .eq("id", routineId)
+    .single()) as { data: Routine | null };
+
+  if (!routine) {
+    redirect("/routines");
+  }
 
   const { data: step } = (await supabase
     .from("routine_steps")
@@ -33,6 +43,7 @@ export default async function EditStepPage({
       <div className="mb-4 rounded-xl border border-card-border p-4">
         <StepForm
           action={updateStep.bind(null, routineId, stepId)}
+          cadence={routine.cadence}
           initial={step}
           submitLabel="Save"
         />
@@ -40,9 +51,9 @@ export default async function EditStepPage({
       <form action={deleteStep.bind(null, routineId, stepId)}>
         <button
           type="submit"
-          className="rounded-full border border-delete-border px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06]"
+          className="rounded-full border border-delete-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06]"
         >
-          Delete step
+          Delete
         </button>
       </form>
     </div>

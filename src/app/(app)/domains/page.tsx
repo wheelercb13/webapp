@@ -17,7 +17,7 @@ export default async function DomainsPage() {
     <div className="mx-auto flex w-full max-w-[468px] flex-col px-[22px]">
       <div className="flex items-end justify-between gap-3 pb-[26px] pt-9">
         <h1 className="font-serif text-[34px] font-medium leading-[1.02] tracking-[-0.01em] text-foreground-display">
-          Domains
+          Task Domains
         </h1>
         <Link
           href="/domains/new"

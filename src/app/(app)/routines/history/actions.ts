@@ -16,11 +16,15 @@ export async function deleteRoutineHistory(routineHistoryId: string) {
   revalidatePath("/routines/history");
 }
 
-export async function resetStepCounter(stepHistoryId: string) {
+export async function resetStepStreak(stepHistoryId: string) {
   const supabase = await createClient();
   await supabase
     .from("routine_step_history")
-    .update({ completion_count: 0 })
+    .update({
+      longest_streak_days: 0,
+      streak_start_cycle_date: null,
+      streak_end_cycle_date: null,
+    })
     .eq("id", stepHistoryId);
   revalidatePath("/routines/history");
 }

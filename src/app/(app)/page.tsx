@@ -10,10 +10,10 @@ import type {
   CalendarConnection,
 } from "@/lib/types";
 import { DOMAIN_COLOR_CLASSES } from "@/lib/colors";
-import { APP_TIMEZONE, todayString, zonedStartOfDayUtc } from "@/lib/date";
+import { APP_TIMEZONE, todayString, zonedStartOfDayUtc, zonedWeekday, formatDateDisplay } from "@/lib/date";
 import { computeStreak, currentCycleDate } from "@/lib/routines";
 import { describeRepeatRule } from "@/lib/recurrence";
-import { slippingCutoffIso, daysSince } from "@/lib/slipping";
+import { isSlipping, daysSince, daysOverdue } from "@/lib/slipping";
 import { toggleTaskStatus } from "@/app/(app)/tasks/actions";
 import { StepCheckbox } from "@/app/(app)/routines/steps/step-checkbox";
 import {
@@ -60,6 +60,7 @@ const PRIORITY_WEIGHT: Record<TaskPriority, number> = { high: 0, med: 1, low: 2 
 export default async function TodayPage() {
   const supabase = await createClient();
   const today = todayString();
+  const todayWeekday = zonedWeekday();
 
   const todayLabel = new Intl.DateTimeFormat("en-US", {
     timeZone: APP_TIMEZONE,
@@ -139,18 +140,40 @@ export default async function TodayPage() {
   const { data: slippingData } = (await supabase
     .from("tasks")
     .select("*, domains(name, color)")
-    .eq("status", "open")
-    .lt("updated_at", slippingCutoffIso())) as { data: TaskRow[] | null };
+    .eq("status", "open")) as { data: TaskRow[] | null };
 
   const slippingTasks = (slippingData ?? [])
-    .filter((t) => t.domains !== null)
+    .filter((t) => t.domains !== null && isSlipping(t, today))
     .map((t) => ({
       ...t,
       domain_name: t.domains!.name,
       domain_color: t.domains!.color,
     })) as TaskWithDomain[];
 
-  slippingTasks.sort((a, b) => (a.updated_at < b.updated_at ? -1 : 1));
+  function slippingReasonText(task: TaskWithDomain): string {
+    if (task.due_date && task.due_date < today) {
+      const days = daysOverdue(task.due_date, today);
+      return `${days} day${days === 1 ? "" : "s"} overdue`;
+    }
+    if (task.priority === "high") {
+      return "Not completed the day it was created";
+    }
+    return `No update in ${daysSince(task.updated_at)} days`;
+  }
+
+  function slippingSortKey(task: TaskWithDomain): string {
+    if (task.priority === "high") return task.due_date ?? task.created_at;
+    return task.updated_at;
+  }
+
+  slippingTasks.sort((a, b) => {
+    if (a.priority !== b.priority) {
+      return PRIORITY_WEIGHT[a.priority] - PRIORITY_WEIGHT[b.priority];
+    }
+    const aKey = slippingSortKey(a);
+    const bKey = slippingSortKey(b);
+    return aKey < bKey ? -1 : aKey > bKey ? 1 : 0;
+  });
 
   const {
     data: { user },
@@ -240,7 +263,7 @@ export default async function TodayPage() {
                   <div>
                     <div className="mb-[3px] text-[15px] text-foreground">{task.title}</div>
                     <div className="text-[12px] text-muted">
-                      {task.domain_name} · No update in {daysSince(task.updated_at)} days
+                      {task.domain_name} · {slippingReasonText(task)}
                     </div>
                   </div>
                 </div>
@@ -291,33 +314,41 @@ export default async function TodayPage() {
         </div>
       )}
 
-      {routines.map((routine) => (
-        <div key={routine.id} className="mb-[38px]">
-          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
-            {routine.name}
+      {routines.map((routine) => {
+        const visibleSteps = (stepsByRoutine.get(routine.id) ?? []).filter(
+          (step) => !step.only_show_on_weekday || step.weekday === todayWeekday
+        );
+        if (visibleSteps.length === 0) return null;
+
+        return (
+          <div key={routine.id} className="mb-[38px]">
+            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+              {routine.name}
+            </div>
+            <div className="border-t border-hairline">
+              {visibleSteps.map((step) => {
+                const completions = completionsByStep.get(step.id) ?? new Set<string>();
+                const cycleDate = currentCycleDate(routine.cadence, step.weekday);
+                const checked = completions.has(cycleDate);
+                const streak = computeStreak(routine.cadence, step.weekday, completions);
+                return (
+                  <StepCheckbox
+                    key={step.id}
+                    routineId={routine.id}
+                    stepId={step.id}
+                    cadence={routine.cadence}
+                    weekday={step.weekday}
+                    label={step.label}
+                    checked={checked}
+                    streak={streak}
+                    allowUncheck={false}
+                  />
+                );
+              })}
+            </div>
           </div>
-          <div className="border-t border-hairline">
-            {(stepsByRoutine.get(routine.id) ?? []).map((step) => {
-              const completions = completionsByStep.get(step.id) ?? new Set<string>();
-              const cycleDate = currentCycleDate(routine.cadence);
-              const checked = completions.has(cycleDate);
-              const streak = computeStreak(routine.cadence, completions);
-              return (
-                <StepCheckbox
-                  key={step.id}
-                  routineId={routine.id}
-                  stepId={step.id}
-                  cadence={routine.cadence}
-                  label={step.label}
-                  checked={checked}
-                  streak={streak}
-                  allowUncheck={false}
-                />
-              );
-            })}
-          </div>
-        </div>
-      ))}
+        );
+      })}
 
       <div className="mb-2">
         <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
@@ -341,8 +372,8 @@ export default async function TodayPage() {
                       {task.domain_name} ·{" "}
                       {task.due_date
                         ? overdue
-                          ? `Overdue (${task.due_date})`
-                          : `Due ${task.due_date}`
+                          ? `Overdue (${formatDateDisplay(task.due_date)})`
+                          : `Due ${formatDateDisplay(task.due_date)}`
                         : "No due date"}{" "}
                       · {task.priority}
                       {task.repeat_unit &&
@@ -357,7 +388,7 @@ export default async function TodayPage() {
                 <form action={toggleTaskStatus.bind(null, task.domain_id, task.id)}>
                   <button
                     type="submit"
-                    className="shrink-0 rounded-full border border-button-border px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
+                    className="shrink-0 rounded-full border border-button-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
                   >
                     Done
                   </button>
