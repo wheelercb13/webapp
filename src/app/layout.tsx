@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Newsreader, Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 
@@ -26,6 +26,15 @@ export const metadata: Metadata = {
   icons: {
     apple: "/apple-touch-icon.png",
   },
+};
+
+// viewportFit: "cover" is required for env(safe-area-inset-*) to resolve to
+// real values on iOS -- without it every safe-area calc() silently evaluates
+// to 0, so elements meant to clear the home-indicator/notch area don't.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

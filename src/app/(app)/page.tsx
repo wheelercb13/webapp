@@ -44,8 +44,9 @@ function hasEnded(event: GoogleCalendarEvent): boolean {
   return new Date(event.end.dateTime).getTime() < Date.now();
 }
 
+// Only meaningful for timed events -- all-day events get their own "All Day"
+// section instead of being judged "active" against the clock.
 function isActiveNow(event: GoogleCalendarEvent): boolean {
-  if (event.start.date) return true;
   if (!event.start.dateTime) return false;
   const start = new Date(event.start.dateTime).getTime();
   const end = event.end.dateTime ? new Date(event.end.dateTime).getTime() : start;
@@ -233,6 +234,9 @@ export default async function TodayPage() {
     }
   }
 
+  const allDayEvents = calendarEvents.filter((e) => e.start.date);
+  const timedEvents = calendarEvents.filter((e) => e.start.dateTime);
+
   return (
     <div className="mx-auto flex w-full max-w-[468px] flex-col px-[22px]">
       <div className="pb-[30px] pt-9">
@@ -278,39 +282,64 @@ export default async function TodayPage() {
           <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
             Calendar
           </div>
-          <div className="border-t border-hairline">
-            {calendarEvents.map((event) => {
-              const active = isActiveNow(event);
-              return (
+
+          {allDayEvents.length > 0 && (
+            <div className="mb-1.5 flex flex-col border-t border-hairline">
+              {allDayEvents.map((event) => (
                 <div
                   key={event.id}
-                  className={`flex items-center gap-3.5 border-b border-hairline py-3.5 ${
-                    active ? "-mx-2.5 rounded-lg bg-white/[.04] px-2.5" : ""
-                  }`}
+                  className="flex items-center gap-3.5 border-b border-hairline py-3.5"
                 >
                   <span
                     className="h-[7px] w-[7px] shrink-0 rounded-full"
                     style={{ backgroundColor: event.calendarColor }}
                   />
-                  <span
-                    className={`flex-1 text-[15px] ${
-                      active ? "font-medium text-accent" : "text-foreground"
-                    }`}
-                  >
+                  <span className="flex-1 text-[15px] text-foreground">
                     {event.summary || "(No title)"}
                   </span>
-                  {active && (
-                    <span className="whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.08em] text-accent">
-                      Now
-                    </span>
-                  )}
-                  <span className="whitespace-nowrap text-[12.5px] tabular-nums text-muted">
-                    {formatEventTimeRange(event)}
+                  <span className="whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.08em] text-muted">
+                    All Day
                   </span>
                 </div>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          )}
+
+          {timedEvents.length > 0 && (
+            <div className="border-t border-hairline">
+              {timedEvents.map((event) => {
+                const active = isActiveNow(event);
+                return (
+                  <div
+                    key={event.id}
+                    className={`flex items-center gap-3.5 border-b border-hairline py-3.5 ${
+                      active ? "-mx-2.5 rounded-lg bg-white/[.04] px-2.5" : ""
+                    }`}
+                  >
+                    <span
+                      className="h-[7px] w-[7px] shrink-0 rounded-full"
+                      style={{ backgroundColor: event.calendarColor }}
+                    />
+                    <span
+                      className={`flex-1 text-[15px] ${
+                        active ? "font-medium text-accent" : "text-foreground"
+                      }`}
+                    >
+                      {event.summary || "(No title)"}
+                    </span>
+                    {active && (
+                      <span className="whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.08em] text-accent">
+                        Now
+                      </span>
+                    )}
+                    <span className="whitespace-nowrap text-[12.5px] tabular-nums text-muted">
+                      {formatEventTimeRange(event)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 

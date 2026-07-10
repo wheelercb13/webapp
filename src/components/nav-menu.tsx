@@ -34,7 +34,7 @@ export function NavMenu({ items }: { items: NavItem[] }) {
   return (
     <div
       ref={containerRef}
-      className="fixed bottom-[calc(0.75rem+env(safe-area-inset-bottom))] right-3.5 z-30"
+      className="fixed bottom-[calc(0.75rem+env(safe-area-inset-bottom))] right-[calc(0.875rem+env(safe-area-inset-right))] z-30"
     >
       {open && (
         <div className="absolute bottom-[calc(100%+10px)] right-0 flex w-44 flex-col gap-0.5 rounded-xl border border-card-border bg-background p-2 shadow-lg">
