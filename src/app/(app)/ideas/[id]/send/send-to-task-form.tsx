@@ -22,6 +22,8 @@ export function SendToTaskForm({
     );
   }
 
+  const domainSelectWidth = `${Math.max(...domains.map((d) => d.name.length)) + 10}ch`;
+
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <div className="flex items-end justify-between gap-4">
@@ -33,6 +35,7 @@ export function SendToTaskForm({
             id={`${id}-domainId`}
             name="domainId"
             defaultValue={domains[0].id}
+            style={{ width: domainSelectWidth }}
             className="rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
           >
             {domains.map((domain) => (
@@ -45,7 +48,7 @@ export function SendToTaskForm({
         <button
           type="submit"
           disabled={pending}
-          className="rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {pending ? "Creating…" : "Create Task"}
         </button>

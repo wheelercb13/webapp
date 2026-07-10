@@ -36,7 +36,7 @@ export function InboxToIdeaForm({
             id={`${id}-stage`}
             name="stage"
             defaultValue="idea"
-            className="rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
+            className="w-[112px] rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
           >
             <option value="idea">idea</option>
             <option value="drafting">drafting</option>
@@ -64,7 +64,7 @@ export function InboxToIdeaForm({
             id={`${id}-priority`}
             name="priority"
             defaultValue="med"
-            className="rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
+            className="w-[82px] rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
           >
             <option value="low">low</option>
             <option value="med">med</option>
@@ -76,7 +76,7 @@ export function InboxToIdeaForm({
       <button
         type="submit"
         disabled={pending}
-        className="self-end rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+        className="inline-flex items-center justify-center self-end rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {pending ? "Creating…" : "Create Idea"}
       </button>

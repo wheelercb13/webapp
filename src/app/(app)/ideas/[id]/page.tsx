@@ -49,21 +49,21 @@ export default async function IdeaDetailPage({
       <div className="flex flex-wrap gap-2">
         <Link
           href={`/ideas/${idea.id}/edit`}
-          className="rounded-full border border-button-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
+          className="inline-flex items-center justify-center rounded-full border border-button-border px-5 py-2.5 text-[12px] font-semibold text-foreground transition-colors hover:bg-white/[.06]"
         >
           Edit
         </Link>
         {linkedTask ? (
           <Link
             href={`/domains/${linkedTask.domain_id}/tasks/${linkedTask.id}`}
-            className="rounded-full bg-accent px-4 py-2 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
+            className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
           >
             View linked task
           </Link>
         ) : (
           <Link
             href={`/ideas/${idea.id}/send`}
-            className="rounded-full bg-accent px-4 py-2 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
+            className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
           >
             Send to Task
           </Link>

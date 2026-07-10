@@ -91,7 +91,7 @@ export default async function RoutineHistoryPage() {
             <form action={deleteRoutineHistory.bind(null, routine.id)}>
               <button
                 type="submit"
-                className="shrink-0 rounded-full border border-delete-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06]"
+                className="inline-flex items-center justify-center shrink-0 rounded-full border border-delete-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06]"
               >
                 Delete
               </button>
@@ -131,7 +131,7 @@ export default async function RoutineHistoryPage() {
                 <form action={resetStepStreak.bind(null, step.id)}>
                   <button
                     type="submit"
-                    className="shrink-0 rounded-full border border-button-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
+                    className="inline-flex items-center justify-center shrink-0 rounded-full border border-button-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
                   >
                     Reset
                   </button>

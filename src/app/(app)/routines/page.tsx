@@ -21,13 +21,13 @@ export default async function RoutinesPage() {
         <div className="flex shrink-0 gap-2">
           <Link
             href="/routines/history"
-            className="rounded-full border border-button-border px-3.5 py-2.5 text-[11px] font-semibold uppercase tracking-[0.05em] text-foreground transition-colors hover:bg-white/[.06]"
+            className="inline-flex items-center justify-center rounded-full border border-button-border px-5 py-2.5 text-[12px] font-semibold text-foreground transition-colors hover:bg-white/[.06]"
           >
             History
           </Link>
           <Link
             href="/routines/new"
-            className="rounded-full bg-accent px-4 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
+            className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
           >
             Create New
           </Link>

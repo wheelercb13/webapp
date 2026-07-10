@@ -76,7 +76,7 @@ export function TaskForm({
             id={`${id}-priority`}
             name="priority"
             defaultValue={initial?.priority ?? "med"}
-            className="rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
+            className="w-[82px] rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
           >
             <option value="low">low</option>
             <option value="med">med</option>
@@ -121,7 +121,7 @@ export function TaskForm({
             name="repeatUnit"
             value={repeatUnit}
             onChange={(e) => setRepeatUnit(e.target.value)}
-            className="rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
+            className="w-[150px] rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
           >
             <option value="">Does not repeat</option>
             <option value="day">Daily</option>
@@ -140,7 +140,7 @@ export function TaskForm({
               id={`${id}-repeatInterval`}
               name="repeatInterval"
               defaultValue={initial?.repeat_interval ?? 1}
-              className="rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
+              className="w-[68px] rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
             >
               {everyOptions.map((n) => (
                 <option key={n} value={n}>
@@ -161,7 +161,7 @@ export function TaskForm({
               name="repeatEnds"
               value={repeatEnds}
               onChange={(e) => setRepeatEnds(e.target.value)}
-              className="rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
+              className="w-[100px] rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
             >
               <option value="never">Never</option>
               <option value="on">On date</option>
@@ -208,7 +208,7 @@ export function TaskForm({
         <button
           type="submit"
           disabled={pending}
-          className="ml-auto rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="inline-flex items-center justify-center ml-auto rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {pending ? "Saving…" : submitLabel}
         </button>

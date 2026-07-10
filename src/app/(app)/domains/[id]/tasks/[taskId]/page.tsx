@@ -58,21 +58,21 @@ export default async function TaskDetailPage({
         <form action={toggleTaskStatus.bind(null, domainId, task.id)}>
           <button
             type="submit"
-            className="rounded-full border border-button-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
+            className="inline-flex items-center justify-center rounded-full border border-button-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
           >
             {task.status === "open" ? "Mark done" : "Reopen"}
           </button>
         </form>
         <Link
           href={`/domains/${domainId}/tasks/${task.id}/edit`}
-          className="rounded-full border border-button-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
+          className="inline-flex items-center justify-center rounded-full border border-button-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
         >
           Edit
         </Link>
         <form action={deleteTask.bind(null, domainId, task.id)}>
           <button
             type="submit"
-            className="rounded-full border border-delete-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06]"
+            className="inline-flex items-center justify-center rounded-full border border-delete-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06]"
           >
             Delete
           </button>

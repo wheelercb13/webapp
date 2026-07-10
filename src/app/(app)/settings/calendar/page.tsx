@@ -51,7 +51,7 @@ export default async function CalendarPage({
             <form action={disconnectCalendar}>
               <button
                 type="submit"
-                className="rounded-full border border-delete-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06]"
+                className="inline-flex items-center justify-center rounded-full border border-delete-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-delete-text transition-colors hover:bg-white/[.06]"
               >
                 Disconnect
               </button>
@@ -64,7 +64,7 @@ export default async function CalendarPage({
             </p>
             <a
               href={authUrl}
-              className="self-start rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
+              className="inline-flex items-center justify-center self-start rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
             >
               Connect Google Calendar
             </a>

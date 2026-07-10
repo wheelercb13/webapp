@@ -24,6 +24,8 @@ export function InboxToTaskForm({
     );
   }
 
+  const domainSelectWidth = `${Math.max(...domains.map((d) => d.name.length)) + 10}ch`;
+
   return (
     <form action={formAction} className="flex flex-col gap-4">
       <div className="flex items-end gap-4">
@@ -47,6 +49,7 @@ export function InboxToTaskForm({
             id={`${id}-domainId`}
             name="domainId"
             defaultValue={domains[0].id}
+            style={{ width: domainSelectWidth }}
             className="rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
           >
             {domains.map((domain) => (
@@ -78,7 +81,7 @@ export function InboxToTaskForm({
             id={`${id}-priority`}
             name="priority"
             defaultValue="med"
-            className="rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
+            className="w-[82px] rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
           >
             <option value="low">low</option>
             <option value="med">med</option>
@@ -90,7 +93,7 @@ export function InboxToTaskForm({
       <button
         type="submit"
         disabled={pending}
-        className="self-end rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+        className="inline-flex items-center justify-center self-end rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {pending ? "Creating…" : "Create Task"}
       </button>

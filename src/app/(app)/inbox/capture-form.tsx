@@ -29,7 +29,7 @@ export function CaptureForm() {
         <button
           type="submit"
           disabled={pending}
-          className="shrink-0 rounded-full bg-accent px-4 py-2 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="inline-flex items-center justify-center shrink-0 rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {pending ? "Saving…" : "Capture"}
         </button>

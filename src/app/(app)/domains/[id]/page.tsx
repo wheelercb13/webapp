@@ -54,13 +54,13 @@ export default async function DomainDetailPage({
         <div className="flex shrink-0 items-center gap-2">
           <Link
             href={`/domains/${domain.id}/edit`}
-            className="rounded-full border border-button-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
+            className="inline-flex items-center justify-center rounded-full border border-button-border px-5 py-2.5 text-[12px] font-semibold text-foreground transition-colors hover:bg-white/[.06]"
           >
             Edit
           </Link>
           <Link
             href={`/domains/${domain.id}/tasks/new`}
-            className="rounded-full bg-accent px-4 py-2 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
+            className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
           >
             Create New Task
           </Link>

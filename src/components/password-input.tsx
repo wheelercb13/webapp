@@ -34,7 +34,7 @@ export function PasswordInput({
         <button
           type="button"
           onClick={() => setShow((s) => !s)}
-          className="rounded-full border border-button-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
+          className="inline-flex items-center justify-center rounded-full border border-button-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
         >
           {show ? "Hide" : "Show"}
         </button>

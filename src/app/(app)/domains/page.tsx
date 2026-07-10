@@ -21,7 +21,7 @@ export default async function DomainsPage() {
         </h1>
         <Link
           href="/domains/new"
-          className="shrink-0 rounded-full bg-accent px-4 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
+          className="inline-flex items-center justify-center shrink-0 rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
         >
           Create New
         </Link>

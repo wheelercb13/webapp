@@ -417,7 +417,7 @@ export default async function TodayPage() {
                 <form action={toggleTaskStatus.bind(null, task.domain_id, task.id)}>
                   <button
                     type="submit"
-                    className="shrink-0 rounded-full border border-button-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
+                    className="inline-flex items-center justify-center shrink-0 rounded-full border border-button-border px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground transition-colors hover:bg-white/[.06]"
                   >
                     Done
                   </button>

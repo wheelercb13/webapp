@@ -33,13 +33,13 @@ export function RoutineForm({
         </div>
         <div className="flex flex-col gap-1">
           <label htmlFor={`${id}-cadence`} className="text-[12px] text-muted">
-            Cadence
+            Repeat
           </label>
           <select
             id={`${id}-cadence`}
             name="cadence"
             defaultValue={initial?.cadence ?? "daily"}
-            className="rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
+            className="w-[96px] rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
           >
             <option value="daily">daily</option>
             <option value="weekly">weekly</option>
@@ -49,7 +49,7 @@ export function RoutineForm({
       <button
         type="submit"
         disabled={pending}
-        className="self-end rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+        className="inline-flex items-center justify-center self-end rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {pending ? "Saving…" : submitLabel}
       </button>

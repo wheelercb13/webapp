@@ -52,7 +52,7 @@ export default async function LibraryPage({
         </h1>
         <Link
           href="/library/new"
-          className="shrink-0 rounded-full bg-accent px-4 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
+          className="inline-flex items-center justify-center shrink-0 rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
         >
           Create New
         </Link>
@@ -68,7 +68,7 @@ export default async function LibraryPage({
         />
         <button
           type="submit"
-          className="shrink-0 rounded-full border border-button-border px-[15px] py-2.5 text-[11px] font-semibold uppercase tracking-[0.05em] text-foreground transition-colors hover:bg-white/[.06]"
+          className="inline-flex items-center justify-center shrink-0 rounded-full border border-button-border px-[15px] py-2.5 text-[11px] font-semibold uppercase tracking-[0.05em] text-foreground transition-colors hover:bg-white/[.06]"
         >
           Search
         </button>

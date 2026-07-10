@@ -39,7 +39,7 @@ export function DomainForm({
             id={`${id}-color`}
             name="color"
             defaultValue={initial?.color ?? DOMAIN_COLORS[0]}
-            className="rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
+            className="w-[98px] rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
           >
             {DOMAIN_COLORS.map((color) => (
               <option key={color} value={color}>
@@ -52,7 +52,7 @@ export function DomainForm({
       <button
         type="submit"
         disabled={pending}
-        className="self-end rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+        className="inline-flex items-center justify-center self-end rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {pending ? "Saving…" : submitLabel}
       </button>
