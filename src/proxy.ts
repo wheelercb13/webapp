@@ -50,13 +50,20 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (user && !user.app_metadata?.is_admin) {
+  if (user) {
     const pathname = request.nextUrl.pathname;
+    const isAdmin = !!user.app_metadata?.is_admin;
 
-    if (matchesPrefix(pathname, "/settings")) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/";
-      return NextResponse.redirect(url);
+    // /settings is otherwise admin-only, but the personal Page View screen
+    // (and the hub that links to it) is carved out for every user.
+    if (!isAdmin && matchesPrefix(pathname, "/settings")) {
+      const allowedForAll =
+        pathname === "/settings" || matchesPrefix(pathname, "/settings/page-view");
+      if (!allowedForAll) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/";
+        return NextResponse.redirect(url);
+      }
     }
 
     const matchedPrefix = Object.keys(FUNCTION_ROUTES).find((prefix) =>
@@ -64,13 +71,30 @@ export default async function proxy(request: NextRequest) {
     );
 
     if (matchedPrefix) {
-      const { data } = await supabase
-        .from("functions")
-        .select("access_level")
-        .eq("key", FUNCTION_ROUTES[matchedPrefix])
-        .single();
+      const key = FUNCTION_ROUTES[matchedPrefix];
 
-      if (data?.access_level === "admin") {
+      if (!isAdmin) {
+        const { data } = await supabase
+          .from("functions")
+          .select("access_level")
+          .eq("key", key)
+          .single();
+
+        if (data?.access_level === "admin") {
+          const url = request.nextUrl.clone();
+          url.pathname = "/";
+          return NextResponse.redirect(url);
+        }
+      }
+
+      // Page View is a personal preference, so it applies even to admins.
+      const { data: pref } = await supabase
+        .from("page_visibility")
+        .select("visible")
+        .eq("page_key", key)
+        .maybeSingle();
+
+      if (pref?.visible === false) {
         const url = request.nextUrl.clone();
         url.pathname = "/";
         return NextResponse.redirect(url);

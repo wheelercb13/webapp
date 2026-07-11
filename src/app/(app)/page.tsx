@@ -8,6 +8,7 @@ import type {
   RoutineStep,
   RoutineCompletion,
   CalendarConnection,
+  PageVisibility,
 } from "@/lib/types";
 import { DOMAIN_COLOR_CLASSES } from "@/lib/colors";
 import { APP_TIMEZONE, todayString, zonedStartOfDayUtc, zonedWeekday, formatDateDisplay } from "@/lib/date";
@@ -70,10 +71,20 @@ export default async function TodayPage() {
     day: "numeric",
   }).format(new Date());
 
-  const { data: routinesData } = (await supabase
-    .from("routines")
-    .select("*")
-    .order("sort_order")) as { data: Routine[] | null };
+  const { data: pageVisibilityData } = (await supabase
+    .from("page_visibility")
+    .select("*")) as { data: PageVisibility[] | null };
+  const visibleByKey = Object.fromEntries(
+    (pageVisibilityData ?? []).map((p) => [p.page_key, p.visible])
+  );
+  const domainsVisible = visibleByKey.domains !== false;
+  const routinesVisible = visibleByKey.routines !== false;
+
+  const { data: routinesData } = routinesVisible
+    ? ((await supabase.from("routines").select("*").order("sort_order")) as {
+        data: Routine[] | null;
+      })
+    : { data: [] as Routine[] };
   const routines = routinesData ?? [];
 
   const { data: stepsData } =
@@ -114,11 +125,13 @@ export default async function TodayPage() {
     stepsByRoutine.set(step.routine_id, list);
   }
 
-  const { data } = (await supabase
-    .from("tasks")
-    .select("*, domains(name, color)")
-    .eq("status", "open")
-    .or(`due_date.is.null,due_date.lte.${today}`)) as { data: TaskRow[] | null };
+  const { data } = domainsVisible
+    ? ((await supabase
+        .from("tasks")
+        .select("*, domains(name, color)")
+        .eq("status", "open")
+        .or(`due_date.is.null,due_date.lte.${today}`)) as { data: TaskRow[] | null })
+    : { data: [] as TaskRow[] };
 
   const tasks = (data ?? [])
     .filter((t) => t.domains !== null)
@@ -138,10 +151,11 @@ export default async function TodayPage() {
     return a.created_at < b.created_at ? -1 : a.created_at > b.created_at ? 1 : 0;
   });
 
-  const { data: slippingData } = (await supabase
-    .from("tasks")
-    .select("*, domains(name, color)")
-    .eq("status", "open")) as { data: TaskRow[] | null };
+  const { data: slippingData } = domainsVisible
+    ? ((await supabase.from("tasks").select("*, domains(name, color)").eq("status", "open")) as {
+        data: TaskRow[] | null;
+      })
+    : { data: [] as TaskRow[] };
 
   const slippingTasks = (slippingData ?? [])
     .filter((t) => t.domains !== null && isSlipping(t, today))
@@ -379,6 +393,7 @@ export default async function TodayPage() {
         );
       })}
 
+      {domainsVisible && (
       <div className="mb-2">
         <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
           Tasks
@@ -430,6 +445,7 @@ export default async function TodayPage() {
           )}
         </div>
       </div>
+      )}
     </div>
   );
 }

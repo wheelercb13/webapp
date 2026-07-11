@@ -1,9 +1,27 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import type { InboxResolution } from "@/lib/types";
 
-export function ConvertMenu({ itemId }: { itemId: string }) {
+const ALL_TARGETS: { value: InboxResolution; label: string }[] = [
+  { value: "task", label: "Task" },
+  { value: "idea", label: "Idea" },
+  { value: "note", label: "Note" },
+];
+
+export function ConvertMenu({
+  itemId,
+  hiddenTargets = [],
+}: {
+  itemId: string;
+  hiddenTargets?: InboxResolution[];
+}) {
   const router = useRouter();
+  const targets = ALL_TARGETS.filter((t) => !hiddenTargets.includes(t.value));
+
+  if (targets.length === 0) {
+    return <p className="text-[12px] text-muted">No conversion available</p>;
+  }
 
   return (
     <select
@@ -19,9 +37,11 @@ export function ConvertMenu({ itemId }: { itemId: string }) {
       <option value="" disabled>
         Convert…
       </option>
-      <option value="task">Task</option>
-      <option value="idea">Idea</option>
-      <option value="note">Note</option>
+      {targets.map((t) => (
+        <option key={t.value} value={t.value}>
+          {t.label}
+        </option>
+      ))}
     </select>
   );
 }

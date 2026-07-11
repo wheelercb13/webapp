@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { Idea, Task } from "@/lib/types";
+import type { Idea, PageVisibility, Task } from "@/lib/types";
 
 export default async function IdeaDetailPage({
   params,
@@ -31,6 +31,13 @@ export default async function IdeaDetailPage({
     linkedTask = data;
   }
 
+  const { data: domainsPref } = (await supabase
+    .from("page_visibility")
+    .select("visible")
+    .eq("page_key", "domains")
+    .maybeSingle()) as { data: Pick<PageVisibility, "visible"> | null };
+  const domainsVisible = domainsPref?.visible !== false;
+
   return (
     <div className="mx-auto flex w-full max-w-[468px] flex-col px-[22px]">
       <div className="pb-[26px] pt-9">
@@ -53,21 +60,22 @@ export default async function IdeaDetailPage({
         >
           Edit
         </Link>
-        {linkedTask ? (
-          <Link
-            href={`/domains/${linkedTask.domain_id}/tasks/${linkedTask.id}`}
-            className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
-          >
-            View linked task
-          </Link>
-        ) : (
-          <Link
-            href={`/ideas/${idea.id}/send`}
-            className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
-          >
-            Send to Task
-          </Link>
-        )}
+        {domainsVisible &&
+          (linkedTask ? (
+            <Link
+              href={`/domains/${linkedTask.domain_id}/tasks/${linkedTask.id}`}
+              className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
+            >
+              View linked task
+            </Link>
+          ) : (
+            <Link
+              href={`/ideas/${idea.id}/send`}
+              className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-2.5 text-[12px] font-semibold text-background transition-opacity hover:opacity-90"
+            >
+              Send to Task
+            </Link>
+          ))}
       </div>
     </div>
   );

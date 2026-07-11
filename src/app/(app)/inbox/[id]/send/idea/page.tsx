@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { InboxItem } from "@/lib/types";
+import type { InboxItem, PageVisibility } from "@/lib/types";
 import { convertInboxToIdea } from "../../../actions";
 import { InboxToIdeaForm } from "./inbox-to-idea-form";
 
@@ -19,6 +19,16 @@ export default async function ConvertInboxToIdeaPage({
     .single()) as { data: InboxItem | null };
 
   if (!item || item.resolved) {
+    redirect("/inbox");
+  }
+
+  const { data: ideasPref } = (await supabase
+    .from("page_visibility")
+    .select("visible")
+    .eq("page_key", "ideas")
+    .maybeSingle()) as { data: Pick<PageVisibility, "visible"> | null };
+
+  if (ideasPref?.visible === false) {
     redirect("/inbox");
   }
 

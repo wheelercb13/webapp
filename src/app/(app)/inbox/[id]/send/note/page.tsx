@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { InboxItem } from "@/lib/types";
+import type { InboxItem, PageVisibility } from "@/lib/types";
 import { convertInboxToNote } from "../../../actions";
 import { InboxToNoteForm } from "./inbox-to-note-form";
 
@@ -19,6 +19,16 @@ export default async function ConvertInboxToNotePage({
     .single()) as { data: InboxItem | null };
 
   if (!item || item.resolved) {
+    redirect("/inbox");
+  }
+
+  const { data: libraryPref } = (await supabase
+    .from("page_visibility")
+    .select("visible")
+    .eq("page_key", "library")
+    .maybeSingle()) as { data: Pick<PageVisibility, "visible"> | null };
+
+  if (libraryPref?.visible === false) {
     redirect("/inbox");
   }
 

@@ -14,3 +14,15 @@ export const FUNCTION_ROUTES: Record<string, string> = {
   "/ideas": "ideas",
   "/library": "library",
 };
+
+// The personal, per-user "Page View" toggles (src/app/(app)/settings/page-view).
+// Keys match FUNCTION_ROUTES values 1:1 -- same pages, but this gate is a
+// per-user preference the user sets for themselves, not an admin-only role
+// rule. Labels here match the nav's visible names (e.g. "domains" -> "Tasks").
+export const PAGE_VIEW_OPTIONS: { key: string; label: string }[] = [
+  { key: "inbox", label: "Inbox" },
+  { key: "ideas", label: "Ideas" },
+  { key: "domains", label: "Tasks" },
+  { key: "routines", label: "Routines" },
+  { key: "library", label: "Library" },
+];

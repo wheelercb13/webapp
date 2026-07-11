@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { InboxItem } from "@/lib/types";
+import type { InboxItem, InboxResolution, PageVisibility } from "@/lib/types";
 import { formatDateDisplay } from "@/lib/date";
 import { resolvedInboxCutoffIso } from "@/lib/inbox-retention";
 import { CaptureForm } from "./capture-form";
@@ -8,6 +8,19 @@ import { resolveInboxItem, deleteInboxItem } from "./actions";
 
 export default async function InboxPage() {
   const supabase = await createClient();
+
+  const { data: pageVisibilityData } = (await supabase
+    .from("page_visibility")
+    .select("*")) as { data: PageVisibility[] | null };
+  const visibleByKey = Object.fromEntries(
+    (pageVisibilityData ?? []).map((p) => [p.page_key, p.visible])
+  );
+
+  const hiddenTargets: InboxResolution[] = [
+    ...(visibleByKey.domains === false ? (["task"] as const) : []),
+    ...(visibleByKey.ideas === false ? (["idea"] as const) : []),
+    ...(visibleByKey.library === false ? (["note"] as const) : []),
+  ];
 
   await supabase
     .from("inbox_items")
@@ -53,7 +66,7 @@ export default async function InboxPage() {
           >
             <span className="text-[15px] text-foreground">{item.raw_text}</span>
             <div className="flex items-center justify-between gap-3">
-              <ConvertMenu itemId={item.id} />
+              <ConvertMenu itemId={item.id} hiddenTargets={hiddenTargets} />
               <div className="flex shrink-0 gap-1.5">
                 <form action={resolveInboxItem.bind(null, item.id)}>
                   <button

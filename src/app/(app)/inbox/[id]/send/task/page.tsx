@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { Domain, InboxItem } from "@/lib/types";
+import type { Domain, InboxItem, PageVisibility } from "@/lib/types";
 import { convertInboxToTask } from "../../../actions";
 import { InboxToTaskForm } from "./inbox-to-task-form";
 
@@ -19,6 +19,16 @@ export default async function ConvertInboxToTaskPage({
     .single()) as { data: InboxItem | null };
 
   if (!item || item.resolved) {
+    redirect("/inbox");
+  }
+
+  const { data: domainsPref } = (await supabase
+    .from("page_visibility")
+    .select("visible")
+    .eq("page_key", "domains")
+    .maybeSingle()) as { data: Pick<PageVisibility, "visible"> | null };
+
+  if (domainsPref?.visible === false) {
     redirect("/inbox");
   }
 

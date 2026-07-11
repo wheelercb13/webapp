@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { Domain, Idea } from "@/lib/types";
+import type { Domain, Idea, PageVisibility } from "@/lib/types";
 import { sendIdeaToTask } from "../../actions";
 import { SendToTaskForm } from "./send-to-task-form";
 
@@ -23,6 +23,16 @@ export default async function SendIdeaToTaskPage({
   }
 
   if (idea.linked_task_id) {
+    redirect(`/ideas/${id}`);
+  }
+
+  const { data: domainsPref } = (await supabase
+    .from("page_visibility")
+    .select("visible")
+    .eq("page_key", "domains")
+    .maybeSingle()) as { data: Pick<PageVisibility, "visible"> | null };
+
+  if (domainsPref?.visible === false) {
     redirect(`/ideas/${id}`);
   }
 

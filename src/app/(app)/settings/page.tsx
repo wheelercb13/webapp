@@ -1,12 +1,25 @@
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 
-const SETTINGS_PAGES = [
+const ADMIN_SETTINGS_PAGES = [
   { label: "Calendar", href: "/settings/calendar", color: "#3b82f6" },
   { label: "System Access", href: "/settings/access", color: "#a855f7" },
   { label: "Users", href: "/settings/users", color: "#22c55e" },
 ];
 
-export default function SettingsPage() {
+const PAGE_VIEW_ENTRY = { label: "Page View", href: "/settings/page-view", color: "#f97316" };
+
+export default async function SettingsPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const isAdmin = !!user?.app_metadata?.is_admin;
+
+  const SETTINGS_PAGES = isAdmin
+    ? [...ADMIN_SETTINGS_PAGES, PAGE_VIEW_ENTRY]
+    : [PAGE_VIEW_ENTRY];
+
   return (
     <div className="mx-auto flex w-full max-w-[468px] flex-col px-[22px]">
       <div className="pb-[26px] pt-9">

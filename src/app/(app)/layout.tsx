@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { logout } from "@/app/actions";
 import { FUNCTION_ROUTES } from "@/lib/access";
-import type { FunctionAccess } from "@/lib/types";
+import type { FunctionAccess, PageVisibility } from "@/lib/types";
 import { BackButton } from "@/components/back-button";
 import { NavMenu } from "@/components/nav-menu";
 
@@ -25,10 +25,18 @@ export default async function AppLayout({
     accessByKey = Object.fromEntries((data ?? []).map((f) => [f.key, f]));
   }
 
+  const { data: pageVisibilityData } = (await supabase
+    .from("page_visibility")
+    .select("*")) as { data: PageVisibility[] | null };
+  const visibleByKey = Object.fromEntries(
+    (pageVisibilityData ?? []).map((p) => [p.page_key, p.visible])
+  );
+
   function canAccess(routePrefix: string) {
-    if (isAdmin) return true;
     const key = FUNCTION_ROUTES[routePrefix];
-    return accessByKey[key]?.access_level === "general";
+    if (!isAdmin && accessByKey[key]?.access_level !== "general") return false;
+    if (visibleByKey[key] === false) return false;
+    return true;
   }
 
   const navItems = [
@@ -38,7 +46,7 @@ export default async function AppLayout({
     ...(canAccess("/domains") ? [{ href: "/domains", label: "Tasks" }] : []),
     ...(canAccess("/routines") ? [{ href: "/routines", label: "Routines" }] : []),
     ...(canAccess("/library") ? [{ href: "/library", label: "Library" }] : []),
-    ...(isAdmin ? [{ href: "/settings", label: "Settings" }] : []),
+    { href: "/settings", label: "Settings" },
   ];
 
   return (

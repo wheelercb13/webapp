@@ -71,6 +71,13 @@ export type FunctionAccess = {
   updated_at: string;
 };
 
+export type PageVisibility = {
+  user_id: string;
+  page_key: string;
+  visible: boolean;
+  updated_at: string;
+};
+
 export type RoutineCadence = "daily" | "weekly";
 
 export type Routine = {
