@@ -26,6 +26,25 @@ export function previousCycleDate(cadence: RoutineCadence, cycleDate: string): s
   return toDateString(date);
 }
 
+// Most-recent-first list of the last `count` cycle dates (current cycle
+// included), for a "catch up on a missed day" editor -- daily steps get
+// the last N calendar days, weekly steps get the last N occurrences of
+// their Repeat On weekday (spanning N weeks).
+export function recentCycleDates(
+  cadence: RoutineCadence,
+  weekday: number | null,
+  count: number,
+  timeZone: string = APP_TIMEZONE
+): string[] {
+  const dates: string[] = [];
+  let cursor = currentCycleDate(cadence, weekday, timeZone);
+  for (let i = 0; i < count; i++) {
+    dates.push(cursor);
+    cursor = previousCycleDate(cadence, cursor);
+  }
+  return dates;
+}
+
 // Walks backward from the current cycle (or the previous one, if the
 // current cycle isn't completed yet) counting consecutive completed
 // cycles. A gap stops the count, so missing a cycle resets the streak

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { currentCycleDate } from "@/lib/routines";
+import { currentCycleDate, recentCycleDates } from "@/lib/routines";
 import {
   recordStepCreated,
   syncRoutineStepHistorySnapshot,
@@ -154,4 +154,46 @@ export async function toggleStepCompletion(
   await recordStreakIfBest(supabase, stepId, cadence);
 
   revalidateRoutinePaths(routineId);
+}
+
+export type StepHistoryFormState = { error?: string } | undefined;
+
+export async function updateStepHistory(
+  routineId: string,
+  stepId: string,
+  cadence: RoutineCadence,
+  weekday: number | null,
+  _state: StepHistoryFormState,
+  formData: FormData
+): Promise<StepHistoryFormState> {
+  const supabase = await createClient();
+  const dates = recentCycleDates(cadence, weekday, 7);
+
+  const { data: existing } = (await supabase
+    .from("routine_completions")
+    .select("cycle_date")
+    .eq("routine_step_id", stepId)
+    .in("cycle_date", dates)) as { data: { cycle_date: string }[] | null };
+  const existingDates = new Set((existing ?? []).map((c) => c.cycle_date));
+
+  for (const date of dates) {
+    const shouldBeComplete = formData.get(`cycle_${date}`) === "on";
+    const isComplete = existingDates.has(date);
+
+    if (shouldBeComplete && !isComplete) {
+      await supabase.from("routine_completions").insert({ routine_step_id: stepId, cycle_date: date });
+      await incrementStepCounter(supabase, stepId);
+    } else if (!shouldBeComplete && isComplete) {
+      await supabase
+        .from("routine_completions")
+        .delete()
+        .eq("routine_step_id", stepId)
+        .eq("cycle_date", date);
+    }
+  }
+
+  await recordStreakIfBest(supabase, stepId, cadence);
+
+  revalidateRoutinePaths(routineId);
+  redirect(`/routines/${routineId}`, "replace");
 }
