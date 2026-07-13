@@ -33,7 +33,6 @@ export async function createStep(
 
   const weekdayRaw = formData.get("weekday") as string | null;
   const weekday = weekdayRaw !== null && weekdayRaw !== "" ? Number(weekdayRaw) : null;
-  const only_show_on_weekday = formData.get("onlyShowOnWeekday") === "on";
 
   const supabase = await createClient();
 
@@ -48,7 +47,7 @@ export async function createStep(
 
   const { data, error } = await supabase
     .from("routine_steps")
-    .insert({ routine_id: routineId, label, sort_order: sortOrder, weekday, only_show_on_weekday })
+    .insert({ routine_id: routineId, label, sort_order: sortOrder, weekday })
     .select()
     .single();
 
@@ -76,12 +75,11 @@ export async function updateStep(
 
   const weekdayRaw = formData.get("weekday") as string | null;
   const weekday = weekdayRaw !== null && weekdayRaw !== "" ? Number(weekdayRaw) : null;
-  const only_show_on_weekday = formData.get("onlyShowOnWeekday") === "on";
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("routine_steps")
-    .update({ label, weekday, only_show_on_weekday })
+    .update({ label, weekday })
     .eq("id", stepId);
 
   if (error) {

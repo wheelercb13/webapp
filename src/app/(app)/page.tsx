@@ -125,6 +125,12 @@ export default async function TodayPage() {
     stepsByRoutine.set(step.routine_id, list);
   }
 
+  const visibleRoutineSteps = routines.flatMap((routine) =>
+    (stepsByRoutine.get(routine.id) ?? [])
+      .filter((step) => routine.cadence === "daily" || step.weekday === todayWeekday)
+      .map((step) => ({ routine, step }))
+  );
+
   const { data } = domainsVisible
     ? ((await supabase
         .from("tasks")
@@ -357,41 +363,34 @@ export default async function TodayPage() {
         </div>
       )}
 
-      {routines.map((routine) => {
-        const visibleSteps = (stepsByRoutine.get(routine.id) ?? []).filter(
-          (step) => !step.only_show_on_weekday || step.weekday === todayWeekday
-        );
-        if (visibleSteps.length === 0) return null;
-
-        return (
-          <div key={routine.id} className="mb-[38px]">
-            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
-              {routine.name}
-            </div>
-            <div className="border-t border-hairline">
-              {visibleSteps.map((step) => {
-                const completions = completionsByStep.get(step.id) ?? new Set<string>();
-                const cycleDate = currentCycleDate(routine.cadence, step.weekday);
-                const checked = completions.has(cycleDate);
-                const streak = computeStreak(routine.cadence, step.weekday, completions);
-                return (
-                  <StepCheckbox
-                    key={step.id}
-                    routineId={routine.id}
-                    stepId={step.id}
-                    cadence={routine.cadence}
-                    weekday={step.weekday}
-                    label={step.label}
-                    checked={checked}
-                    streak={streak}
-                    allowUncheck={false}
-                  />
-                );
-              })}
-            </div>
+      {visibleRoutineSteps.length > 0 && (
+        <div className="mb-[38px]">
+          <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-muted">
+            Routines
           </div>
-        );
-      })}
+          <div className="border-t border-hairline">
+            {visibleRoutineSteps.map(({ routine, step }) => {
+              const completions = completionsByStep.get(step.id) ?? new Set<string>();
+              const cycleDate = currentCycleDate(routine.cadence, step.weekday);
+              const checked = completions.has(cycleDate);
+              const streak = computeStreak(routine.cadence, step.weekday, completions);
+              return (
+                <StepCheckbox
+                  key={step.id}
+                  routineId={routine.id}
+                  stepId={step.id}
+                  cadence={routine.cadence}
+                  weekday={step.weekday}
+                  label={step.label}
+                  checked={checked}
+                  streak={streak}
+                  allowUncheck={false}
+                />
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {domainsVisible && (
       <div className="mb-2">

@@ -96,7 +96,6 @@ export type RoutineStep = {
   label: string;
   sort_order: number;
   weekday: number | null;
-  only_show_on_weekday: boolean;
   created_at: string;
 };
 
