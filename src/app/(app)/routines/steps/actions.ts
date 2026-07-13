@@ -61,9 +61,17 @@ export async function createStep(
   redirect(`/routines/${routineId}`, "replace");
 }
 
-export async function updateStep(
+// Saves the step's label/weekday and its "Last 7 Days" completion edits in
+// one submit. `renderWeekday` is the weekday the edit page was rendered
+// with (bound server-side, not read from formData) -- it's what the
+// "Last 7 Days" checkboxes' dates were computed from, so it must be used
+// to re-derive those same dates even if the user also changes "Repeats on"
+// in this same submit.
+export async function updateStepAndHistory(
   routineId: string,
   stepId: string,
+  cadence: RoutineCadence,
+  renderWeekday: number | null,
   _state: StepFormState,
   formData: FormData
 ): Promise<StepFormState> {
@@ -87,6 +95,33 @@ export async function updateStep(
   }
 
   await syncRoutineStepHistorySnapshot(supabase, stepId, label);
+
+  const dates = recentCycleDates(cadence, renderWeekday, 7);
+
+  const { data: existing } = (await supabase
+    .from("routine_completions")
+    .select("cycle_date")
+    .eq("routine_step_id", stepId)
+    .in("cycle_date", dates)) as { data: { cycle_date: string }[] | null };
+  const existingDates = new Set((existing ?? []).map((c) => c.cycle_date));
+
+  for (const date of dates) {
+    const shouldBeComplete = formData.get(`cycle_${date}`) === "on";
+    const isComplete = existingDates.has(date);
+
+    if (shouldBeComplete && !isComplete) {
+      await supabase.from("routine_completions").insert({ routine_step_id: stepId, cycle_date: date });
+      await incrementStepCounter(supabase, stepId);
+    } else if (!shouldBeComplete && isComplete) {
+      await supabase
+        .from("routine_completions")
+        .delete()
+        .eq("routine_step_id", stepId)
+        .eq("cycle_date", date);
+    }
+  }
+
+  await recordStreakIfBest(supabase, stepId, cadence);
 
   revalidateRoutinePaths(routineId);
   redirect(`/routines/${routineId}`, "replace");
@@ -156,44 +191,3 @@ export async function toggleStepCompletion(
   revalidateRoutinePaths(routineId);
 }
 
-export type StepHistoryFormState = { error?: string } | undefined;
-
-export async function updateStepHistory(
-  routineId: string,
-  stepId: string,
-  cadence: RoutineCadence,
-  weekday: number | null,
-  _state: StepHistoryFormState,
-  formData: FormData
-): Promise<StepHistoryFormState> {
-  const supabase = await createClient();
-  const dates = recentCycleDates(cadence, weekday, 7);
-
-  const { data: existing } = (await supabase
-    .from("routine_completions")
-    .select("cycle_date")
-    .eq("routine_step_id", stepId)
-    .in("cycle_date", dates)) as { data: { cycle_date: string }[] | null };
-  const existingDates = new Set((existing ?? []).map((c) => c.cycle_date));
-
-  for (const date of dates) {
-    const shouldBeComplete = formData.get(`cycle_${date}`) === "on";
-    const isComplete = existingDates.has(date);
-
-    if (shouldBeComplete && !isComplete) {
-      await supabase.from("routine_completions").insert({ routine_step_id: stepId, cycle_date: date });
-      await incrementStepCounter(supabase, stepId);
-    } else if (!shouldBeComplete && isComplete) {
-      await supabase
-        .from("routine_completions")
-        .delete()
-        .eq("routine_step_id", stepId)
-        .eq("cycle_date", date);
-    }
-  }
-
-  await recordStreakIfBest(supabase, stepId, cadence);
-
-  revalidateRoutinePaths(routineId);
-  redirect(`/routines/${routineId}`, "replace");
-}

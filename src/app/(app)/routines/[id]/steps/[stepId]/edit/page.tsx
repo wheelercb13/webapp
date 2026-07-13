@@ -3,9 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import type { Routine, RoutineStep } from "@/lib/types";
 import { formatDateDisplay } from "@/lib/date";
 import { currentCycleDate, recentCycleDates } from "@/lib/routines";
-import { updateStep, deleteStep, updateStepHistory } from "@/app/(app)/routines/steps/actions";
-import { StepForm } from "@/app/(app)/routines/steps/step-form";
-import { StepHistoryForm } from "@/app/(app)/routines/steps/step-history-form";
+import { updateStepAndHistory, deleteStep } from "@/app/(app)/routines/steps/actions";
+import { StepEditForm } from "@/app/(app)/routines/steps/step-edit-form";
 
 export default async function EditStepPage({
   params,
@@ -63,24 +62,11 @@ export default async function EditStepPage({
         </h1>
       </div>
       <div className="mb-4 rounded-xl border border-card-border p-4">
-        <StepForm
-          action={updateStep.bind(null, routineId, stepId)}
+        <StepEditForm
+          action={updateStepAndHistory.bind(null, routineId, stepId, routine.cadence, step.weekday)}
           cadence={routine.cadence}
           initial={step}
-          submitLabel="Save"
-        />
-      </div>
-
-      <div className="mb-4 rounded-xl border border-card-border p-4">
-        <h2 className="mb-1 text-[12px] font-semibold uppercase tracking-[0.06em] text-muted">
-          Last 7 Days
-        </h2>
-        <p className="mb-3 text-[13px] text-muted">
-          Forgot to check this off? Fix a past day here to save your streak.
-        </p>
-        <StepHistoryForm
-          action={updateStepHistory.bind(null, routineId, stepId, routine.cadence, step.weekday)}
-          entries={historyEntries}
+          historyEntries={historyEntries}
         />
       </div>
 
