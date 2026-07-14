@@ -254,7 +254,14 @@ export default async function TodayPage() {
     }
   }
 
-  const allDayEvents = calendarEvents.filter((e) => e.start.date);
+  // Google's timeMin/timeMax window is built from APP_TIMEZONE midnight, but
+  // Google treats all-day event boundaries as UTC midnight -- during evening
+  // hours (NY is behind UTC) that can pull in an event starting tomorrow.
+  // Guard against that by checking the event's own date range against
+  // today's date string directly, which is unambiguous for all-day events.
+  const allDayEvents = calendarEvents.filter(
+    (e) => e.start.date !== undefined && e.start.date <= today && today < (e.end.date ?? e.start.date)
+  );
   const timedEvents = calendarEvents.filter((e) => e.start.dateTime);
 
   return (
