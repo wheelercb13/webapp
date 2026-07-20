@@ -2,8 +2,10 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Routine, RoutineStep, RoutineCompletion } from "@/lib/types";
+import { zonedWeekday } from "@/lib/date";
 import { computeStreak, currentCycleDate } from "@/lib/routines";
 import { StepCheckbox } from "@/app/(app)/routines/steps/step-checkbox";
+import { StepWeekdayChips } from "@/app/(app)/routines/steps/step-weekday-chips";
 import { reorderStep } from "@/app/(app)/routines/steps/actions";
 
 export default async function RoutineDetailPage({
@@ -50,6 +52,8 @@ export default async function RoutineDetailPage({
     completionsByStep.set(completion.routine_step_id, set);
   }
 
+  const todayWeekday = zonedWeekday();
+
   return (
     <div className="mx-auto flex w-full max-w-[468px] flex-col px-[22px]">
       <div className="flex items-end justify-between gap-3 pb-[26px] pt-9">
@@ -75,23 +79,39 @@ export default async function RoutineDetailPage({
       <div className="border-t border-hairline">
         {steps.map((step, index) => {
           const completions = completionsByStep.get(step.id) ?? new Set<string>();
-          const cycleDate = currentCycleDate(routine.cadence, step.weekday);
-          const checked = completions.has(cycleDate);
-          const streak = computeStreak(routine.cadence, step.weekday, completions);
+          const weekdays = step.weekdays ?? [];
 
           return (
             <div key={step.id} className="flex items-center gap-2 border-b border-hairline">
               <div className="min-w-0 flex-1">
-                <StepCheckbox
-                  routineId={routine.id}
-                  stepId={step.id}
-                  cadence={routine.cadence}
-                  weekday={step.weekday}
-                  label={step.label}
-                  checked={checked}
-                  streak={streak}
-                  bordered={false}
-                />
+                {routine.cadence === "daily" ? (
+                  <StepCheckbox
+                    routineId={routine.id}
+                    stepId={step.id}
+                    cadence={routine.cadence}
+                    weekday={null}
+                    label={step.label}
+                    checked={completions.has(currentCycleDate("daily", null))}
+                    streak={computeStreak("daily", null, completions)}
+                    bordered={false}
+                  />
+                ) : (
+                  <StepWeekdayChips
+                    routineId={routine.id}
+                    stepId={step.id}
+                    label={step.label}
+                    weekdays={weekdays}
+                    checkedByWeekday={Object.fromEntries(
+                      weekdays.map((wd) => [wd, completions.has(currentCycleDate("weekly", wd))])
+                    )}
+                    streak={
+                      weekdays.includes(todayWeekday)
+                        ? computeStreak("weekly", todayWeekday, completions)
+                        : null
+                    }
+                    bordered={false}
+                  />
+                )}
               </div>
               <Link
                 href={`/routines/${routine.id}/steps/${step.id}/edit`}

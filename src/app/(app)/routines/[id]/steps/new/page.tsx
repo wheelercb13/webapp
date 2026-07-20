@@ -30,7 +30,11 @@ export default async function NewStepPage({
         </h1>
       </div>
       <div className="rounded-xl border border-card-border p-4">
-        <StepForm action={createStep.bind(null, routineId)} cadence={routine.cadence} submitLabel="Add Step" />
+        <StepForm
+          action={createStep.bind(null, routineId, routine.cadence)}
+          cadence={routine.cadence}
+          submitLabel="Add Step"
+        />
       </div>
     </div>
   );

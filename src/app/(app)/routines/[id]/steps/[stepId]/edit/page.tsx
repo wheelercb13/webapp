@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Routine, RoutineStep } from "@/lib/types";
-import { formatDateDisplay } from "@/lib/date";
-import { currentCycleDate, recentCycleDates } from "@/lib/routines";
+import { formatDateDisplay, todayString } from "@/lib/date";
+import { recentCycleDates, recentOccurrenceDates } from "@/lib/routines";
 import { updateStepAndHistory, deleteStep } from "@/app/(app)/routines/steps/actions";
 import { StepEditForm } from "@/app/(app)/routines/steps/step-edit-form";
 
@@ -35,8 +35,11 @@ export default async function EditStepPage({
     redirect(`/routines/${routineId}`);
   }
 
-  const dates = recentCycleDates(routine.cadence, step.weekday, 7);
-  const currentDate = currentCycleDate(routine.cadence, step.weekday);
+  const dates =
+    routine.cadence === "daily"
+      ? recentCycleDates("daily", null, 7)
+      : recentOccurrenceDates(step.weekdays ?? [], 7);
+  const today = todayString();
 
   const { data: completions } = (await supabase
     .from("routine_completions")
@@ -47,10 +50,7 @@ export default async function EditStepPage({
 
   const historyEntries = dates.map((date) => ({
     date,
-    label:
-      date === currentDate
-        ? `${formatDateDisplay(date)} (${routine.cadence === "daily" ? "Today" : "This week"})`
-        : formatDateDisplay(date),
+    label: date === today ? `${formatDateDisplay(date)} (Today)` : formatDateDisplay(date),
     completed: completedDates.has(date),
   }));
 
@@ -63,7 +63,7 @@ export default async function EditStepPage({
       </div>
       <div className="mb-4 rounded-xl border border-card-border p-4">
         <StepEditForm
-          action={updateStepAndHistory.bind(null, routineId, stepId, routine.cadence, step.weekday)}
+          action={updateStepAndHistory.bind(null, routineId, stepId, routine.cadence, step.weekdays)}
           cadence={routine.cadence}
           initial={step}
           historyEntries={historyEntries}

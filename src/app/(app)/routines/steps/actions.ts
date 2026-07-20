@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { currentCycleDate, recentCycleDates } from "@/lib/routines";
+import { currentCycleDate, recentCycleDates, recentOccurrenceDates } from "@/lib/routines";
 import {
   recordStepCreated,
   syncRoutineStepHistorySnapshot,
@@ -22,6 +22,7 @@ function revalidateRoutinePaths(routineId: string) {
 
 export async function createStep(
   routineId: string,
+  cadence: RoutineCadence,
   _state: StepFormState,
   formData: FormData
 ): Promise<StepFormState> {
@@ -31,8 +32,11 @@ export async function createStep(
     return { error: "Label is required." };
   }
 
-  const weekdayRaw = formData.get("weekday") as string | null;
-  const weekday = weekdayRaw !== null && weekdayRaw !== "" ? Number(weekdayRaw) : null;
+  const weekdaysRaw = formData.getAll("weekday").map(Number);
+  if (cadence === "weekly" && weekdaysRaw.length === 0) {
+    return { error: "Select at least one day." };
+  }
+  const weekdays = cadence === "weekly" ? weekdaysRaw : null;
 
   const supabase = await createClient();
 
@@ -47,7 +51,7 @@ export async function createStep(
 
   const { data, error } = await supabase
     .from("routine_steps")
-    .insert({ routine_id: routineId, label, sort_order: sortOrder, weekday })
+    .insert({ routine_id: routineId, label, sort_order: sortOrder, weekdays })
     .select()
     .single();
 
@@ -61,8 +65,8 @@ export async function createStep(
   redirect(`/routines/${routineId}`, "replace");
 }
 
-// Saves the step's label/weekday and its "Last 7 Days" completion edits in
-// one submit. `renderWeekday` is the weekday the edit page was rendered
+// Saves the step's label/weekdays and its "Last 7 Days" completion edits in
+// one submit. `renderWeekdays` is the weekdays the edit page was rendered
 // with (bound server-side, not read from formData) -- it's what the
 // "Last 7 Days" checkboxes' dates were computed from, so it must be used
 // to re-derive those same dates even if the user also changes "Repeats on"
@@ -71,7 +75,7 @@ export async function updateStepAndHistory(
   routineId: string,
   stepId: string,
   cadence: RoutineCadence,
-  renderWeekday: number | null,
+  renderWeekdays: number[] | null,
   _state: StepFormState,
   formData: FormData
 ): Promise<StepFormState> {
@@ -81,13 +85,16 @@ export async function updateStepAndHistory(
     return { error: "Label is required." };
   }
 
-  const weekdayRaw = formData.get("weekday") as string | null;
-  const weekday = weekdayRaw !== null && weekdayRaw !== "" ? Number(weekdayRaw) : null;
+  const weekdaysRaw = formData.getAll("weekday").map(Number);
+  if (cadence === "weekly" && weekdaysRaw.length === 0) {
+    return { error: "Select at least one day." };
+  }
+  const weekdays = cadence === "weekly" ? weekdaysRaw : null;
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("routine_steps")
-    .update({ label, weekday })
+    .update({ label, weekdays })
     .eq("id", stepId);
 
   if (error) {
@@ -96,7 +103,10 @@ export async function updateStepAndHistory(
 
   await syncRoutineStepHistorySnapshot(supabase, stepId, label);
 
-  const dates = recentCycleDates(cadence, renderWeekday, 7);
+  const dates =
+    cadence === "daily"
+      ? recentCycleDates("daily", null, 7)
+      : recentOccurrenceDates(renderWeekdays ?? [], 7);
 
   const { data: existing } = (await supabase
     .from("routine_completions")

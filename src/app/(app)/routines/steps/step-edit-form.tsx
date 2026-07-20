@@ -3,16 +3,7 @@
 import { useActionState, useId } from "react";
 import type { RoutineCadence, RoutineStep } from "@/lib/types";
 import type { StepFormState } from "./actions";
-
-const WEEKDAYS = [
-  { value: 0, label: "Sunday" },
-  { value: 1, label: "Monday" },
-  { value: 2, label: "Tuesday" },
-  { value: 3, label: "Wednesday" },
-  { value: 4, label: "Thursday" },
-  { value: 5, label: "Friday" },
-  { value: 6, label: "Saturday" },
-];
+import { WeekdayCheckboxes } from "./weekday-checkboxes";
 
 export function StepEditForm({
   action,
@@ -22,7 +13,7 @@ export function StepEditForm({
 }: {
   action: (state: StepFormState, formData: FormData) => Promise<StepFormState>;
   cadence: RoutineCadence;
-  initial: Pick<RoutineStep, "label" | "weekday">;
+  initial: Pick<RoutineStep, "label" | "weekdays">;
   historyEntries: { date: string; label: string; completed: boolean }[];
 }) {
   const [state, formAction, pending] = useActionState(action, undefined);
@@ -45,21 +36,8 @@ export function StepEditForm({
 
       {cadence === "weekly" && (
         <div className="flex flex-col gap-1">
-          <label htmlFor={`${id}-weekday`} className="text-[12px] text-muted">
-            Repeats on
-          </label>
-          <select
-            id={`${id}-weekday`}
-            name="weekday"
-            defaultValue={initial.weekday ?? 1}
-            className="w-[120px] rounded-full border border-button-border bg-background px-3.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.06em] text-foreground outline-none transition-colors hover:bg-white/[.06]"
-          >
-            {WEEKDAYS.map((day) => (
-              <option key={day.value} value={day.value}>
-                {day.label}
-              </option>
-            ))}
-          </select>
+          <label className="text-[12px] text-muted">Repeats on</label>
+          <WeekdayCheckboxes defaultValues={initial.weekdays ?? [1]} />
         </div>
       )}
 

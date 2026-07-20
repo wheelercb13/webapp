@@ -127,7 +127,7 @@ export default async function TodayPage() {
 
   const visibleRoutineSteps = routines.flatMap((routine) =>
     (stepsByRoutine.get(routine.id) ?? [])
-      .filter((step) => routine.cadence === "daily" || step.weekday === todayWeekday)
+      .filter((step) => routine.cadence === "daily" || (step.weekdays ?? []).includes(todayWeekday))
       .map((step) => ({ routine, step }))
   );
 
@@ -377,17 +377,21 @@ export default async function TodayPage() {
           </div>
           <div className="border-t border-hairline">
             {visibleRoutineSteps.map(({ routine, step }) => {
+              // Only rendered when today matches (daily, or today is one of
+              // the step's selected weekdays), so today's own weekday is
+              // always the right cycle to show/toggle here.
+              const activeWeekday = routine.cadence === "daily" ? null : todayWeekday;
               const completions = completionsByStep.get(step.id) ?? new Set<string>();
-              const cycleDate = currentCycleDate(routine.cadence, step.weekday);
+              const cycleDate = currentCycleDate(routine.cadence, activeWeekday);
               const checked = completions.has(cycleDate);
-              const streak = computeStreak(routine.cadence, step.weekday, completions);
+              const streak = computeStreak(routine.cadence, activeWeekday, completions);
               return (
                 <StepCheckbox
                   key={step.id}
                   routineId={routine.id}
                   stepId={step.id}
                   cadence={routine.cadence}
-                  weekday={step.weekday}
+                  weekday={activeWeekday}
                   label={step.label}
                   checked={checked}
                   streak={streak}
