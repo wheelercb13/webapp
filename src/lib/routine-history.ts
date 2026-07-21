@@ -125,7 +125,21 @@ export async function recordStreakIfBest(
     .select("cycle_date")
     .eq("routine_step_id", stepId);
 
-  const best = longestStreak(cadence, new Set((completions ?? []).map((c) => c.cycle_date)));
+  let weekdays: number[] | null = null;
+  if (cadence === "weekly") {
+    const { data: step } = await supabase
+      .from("routine_steps")
+      .select("weekdays")
+      .eq("id", stepId)
+      .single();
+    weekdays = step?.weekdays ?? null;
+  }
+
+  const best = longestStreak(
+    cadence,
+    new Set((completions ?? []).map((c) => c.cycle_date)),
+    weekdays
+  );
   if (!best) return;
 
   const stepHistoryId = await ensureRoutineStepHistory(supabase, stepId);

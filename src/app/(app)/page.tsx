@@ -379,12 +379,19 @@ export default async function TodayPage() {
             {visibleRoutineSteps.map(({ routine, step }) => {
               // Only rendered when today matches (daily, or today is one of
               // the step's selected weekdays), so today's own weekday is
-              // always the right cycle to show/toggle here.
+              // always the right cycle to show/toggle here. The streak
+              // itself is computed over the step's whole weekdays set
+              // (its full occurrence sequence), not just today's day, so
+              // it stays continuous across the days it repeats on.
               const activeWeekday = routine.cadence === "daily" ? null : todayWeekday;
               const completions = completionsByStep.get(step.id) ?? new Set<string>();
               const cycleDate = currentCycleDate(routine.cadence, activeWeekday);
               const checked = completions.has(cycleDate);
-              const streak = computeStreak(routine.cadence, activeWeekday, completions);
+              const streak = computeStreak(
+                routine.cadence,
+                routine.cadence === "daily" ? null : step.weekdays,
+                completions
+              );
               return (
                 <StepCheckbox
                   key={step.id}

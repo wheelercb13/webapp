@@ -2,7 +2,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Routine, RoutineStep, RoutineCompletion } from "@/lib/types";
-import { zonedWeekday } from "@/lib/date";
 import { computeStreak, currentCycleDate } from "@/lib/routines";
 import { StepCheckbox } from "@/app/(app)/routines/steps/step-checkbox";
 import { StepWeekdayChips } from "@/app/(app)/routines/steps/step-weekday-chips";
@@ -51,8 +50,6 @@ export default async function RoutineDetailPage({
     set.add(completion.cycle_date);
     completionsByStep.set(completion.routine_step_id, set);
   }
-
-  const todayWeekday = zonedWeekday();
 
   return (
     <div className="mx-auto flex w-full max-w-[468px] flex-col px-[22px]">
@@ -104,11 +101,7 @@ export default async function RoutineDetailPage({
                     checkedByWeekday={Object.fromEntries(
                       weekdays.map((wd) => [wd, completions.has(currentCycleDate("weekly", wd))])
                     )}
-                    streak={
-                      weekdays.includes(todayWeekday)
-                        ? computeStreak("weekly", todayWeekday, completions)
-                        : null
-                    }
+                    streak={computeStreak("weekly", weekdays, completions)}
                     bordered={false}
                   />
                 )}

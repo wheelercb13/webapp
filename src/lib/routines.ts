@@ -26,6 +26,12 @@ export function previousCycleDate(cadence: RoutineCadence, cycleDate: string): s
   return toDateString(date);
 }
 
+function nextDay(dateString: string): string {
+  const date = toUtcDate(dateString);
+  date.setUTCDate(date.getUTCDate() + 1);
+  return toDateString(date);
+}
+
 // Most-recent-first list of the last `count` cycle dates (current cycle
 // included), for a "catch up on a missed day" editor -- daily steps get
 // the last N calendar days, weekly steps get the last N occurrences of
@@ -45,23 +51,49 @@ export function recentCycleDates(
   return dates;
 }
 
+// A weekly step's occurrence sequence is every calendar day whose weekday
+// is in its `weekdays` set, in order -- a Mon/Wed/Fri step's sequence is
+// ...Mon, Wed, Fri, Mon, Wed, Fri... with Tue/Thu/Sat/Sun simply not part
+// of it. previousOccurrenceDate/nextOccurrenceDate/currentOccurrenceDate
+// walk that sequence one calendar day at a time (bounded, since `weekdays`
+// always has at least one element) so a multi-day step's streak treats
+// "the next time it's scheduled" as the unit of consecutiveness, not a
+// fixed 7-day gap -- days it doesn't repeat on can't break (or extend) it.
+function previousOccurrenceDate(weekdays: number[], cycleDate: string): string {
+  const date = toUtcDate(cycleDate);
+  do {
+    date.setUTCDate(date.getUTCDate() - 1);
+  } while (!weekdays.includes(date.getUTCDay()));
+  return toDateString(date);
+}
+
+function nextOccurrenceDate(weekdays: number[], cycleDate: string): string {
+  const date = toUtcDate(cycleDate);
+  do {
+    date.setUTCDate(date.getUTCDate() + 1);
+  } while (!weekdays.includes(date.getUTCDay()));
+  return toDateString(date);
+}
+
+function currentOccurrenceDate(weekdays: number[], timeZone: string = APP_TIMEZONE): string {
+  const today = todayString(timeZone);
+  const todayWeekday = toUtcDate(today).getUTCDay();
+  return weekdays.includes(todayWeekday) ? today : previousOccurrenceDate(weekdays, today);
+}
+
 // Same idea as recentCycleDates, but for a weekly step that repeats on
-// several weekdays at once -- walks backward one calendar day at a time,
-// collecting the last `count` actual occurrence dates across all of the
-// given weekdays, mixed together in chronological order (today first, if
-// today is one of them).
+// several weekdays at once -- the last `count` occurrence dates in its
+// sequence, most recent (today, if scheduled) first.
 export function recentOccurrenceDates(
   weekdays: number[],
   count: number,
   timeZone: string = APP_TIMEZONE
 ): string[] {
   const dates: string[] = [];
-  const cursor = toUtcDate(todayString(timeZone));
-  while (dates.length < count) {
-    if (weekdays.includes(cursor.getUTCDay())) {
-      dates.push(toDateString(cursor));
-    }
-    cursor.setUTCDate(cursor.getUTCDate() - 1);
+  let cursor = currentOccurrenceDate(weekdays, timeZone);
+  for (let i = 0; i < count; i++) {
+    dates.push(cursor);
+    cursor = previousOccurrenceDate(weekdays, cursor);
   }
   return dates;
 }
@@ -69,97 +101,87 @@ export function recentOccurrenceDates(
 // Walks backward from the current cycle (or the previous one, if the
 // current cycle isn't completed yet) counting consecutive completed
 // cycles. A gap stops the count, so missing a cycle resets the streak
-// to zero on the next completion.
+// to zero on the next completion. For weekly steps this walks the full
+// occurrence sequence across all of `weekdays` (see above), so e.g. a
+// Mon-Thu step's streak carries Thursday -> next Monday uninterrupted --
+// Friday/Saturday/Sunday aren't scheduled, so they can't break it.
 export function computeStreak(
   cadence: RoutineCadence,
-  weekday: number | null,
+  weekdays: number[] | null,
   completedCycleDates: Set<string>,
   timeZone: string = APP_TIMEZONE
 ): number {
-  let cursor = currentCycleDate(cadence, weekday, timeZone);
+  if (cadence === "daily") {
+    let cursor = todayString(timeZone);
+    if (!completedCycleDates.has(cursor)) {
+      cursor = previousCycleDate("daily", cursor);
+    }
+    let streak = 0;
+    while (completedCycleDates.has(cursor)) {
+      streak++;
+      cursor = previousCycleDate("daily", cursor);
+    }
+    return streak;
+  }
+
+  const days = weekdays && weekdays.length > 0 ? weekdays : [1];
+  let cursor = currentOccurrenceDate(days, timeZone);
   if (!completedCycleDates.has(cursor)) {
-    cursor = previousCycleDate(cadence, cursor);
+    cursor = previousOccurrenceDate(days, cursor);
   }
 
   let streak = 0;
   while (completedCycleDates.has(cursor)) {
     streak++;
-    cursor = previousCycleDate(cadence, cursor);
+    cursor = previousOccurrenceDate(days, cursor);
   }
   return streak;
 }
 
 export type StreakRun = { length: number; startDate: string; endDate: string };
 
-// Finds the longest run of consecutive same-gap times in a sorted list,
-// shared by longestStreak()'s daily pass and its per-weekday weekly passes.
-function longestRun(sortedTimes: number[], stepMs: number): StreakRun {
-  let bestLength = 1;
-  let bestStart = sortedTimes[0];
-  let bestEnd = sortedTimes[0];
-  let curLength = 1;
-  let curStart = sortedTimes[0];
-
-  for (let i = 1; i < sortedTimes.length; i++) {
-    if (sortedTimes[i] - sortedTimes[i - 1] === stepMs) {
-      curLength++;
-    } else {
-      curLength = 1;
-      curStart = sortedTimes[i];
-    }
-    if (curLength > bestLength) {
-      bestLength = curLength;
-      bestStart = curStart;
-      bestEnd = sortedTimes[i];
-    }
-  }
-
-  return {
-    length: bestLength,
-    startDate: toDateString(new Date(bestStart)),
-    endDate: toDateString(new Date(bestEnd)),
-  };
-}
-
 // Scans *all* completions (not just recent ones) for the longest run of
 // consecutive cycles ever completed -- used for the permanent Routine
 // History record, unlike computeStreak() which only cares about the
 // streak still active right now.
 //
-// A weekly step can repeat on several weekdays, each tracked as its own
-// independent 7-day chain -- so completions are grouped by the actual
-// weekday of each date first, and the longest run is taken across those
-// groups, rather than assuming every completion is exactly 7 days apart
-// from the next (which only holds true within a single weekday's chain).
+// For weekly steps, "consecutive" means back-to-back in the step's own
+// occurrence sequence (see computeStreak's comment) -- a completed date is
+// part of the same run as the previous one iff it's exactly that date's
+// nextOccurrenceDate, so a Mon-Thu step's Thursday-then-next-Monday counts
+// as consecutive while a Mon-Thu step that skips Tuesday does not.
 export function longestStreak(
   cadence: RoutineCadence,
-  completedCycleDates: Set<string>
+  completedCycleDates: Set<string>,
+  weekdays: number[] | null = null
 ): StreakRun | null {
   if (completedCycleDates.size === 0) return null;
 
-  if (cadence === "daily") {
-    const sorted = Array.from(completedCycleDates)
-      .map((d) => toUtcDate(d).getTime())
-      .sort((a, b) => a - b);
-    return longestRun(sorted, 24 * 60 * 60 * 1000);
-  }
+  const sorted = Array.from(completedCycleDates).sort();
 
-  const timesByWeekday = new Map<number, number[]>();
-  for (const d of completedCycleDates) {
-    const time = toUtcDate(d).getTime();
-    const weekday = new Date(time).getUTCDay();
-    const list = timesByWeekday.get(weekday) ?? [];
-    list.push(time);
-    timesByWeekday.set(weekday, list);
-  }
+  let bestLength = 1;
+  let bestStart = sorted[0];
+  let bestEnd = sorted[0];
+  let curLength = 1;
+  let curStart = sorted[0];
 
-  let best: StreakRun | null = null;
-  for (const times of timesByWeekday.values()) {
-    times.sort((a, b) => a - b);
-    const run = longestRun(times, 7 * 24 * 60 * 60 * 1000);
-    if (!best || run.length > best.length) {
-      best = run;
+  const days = weekdays && weekdays.length > 0 ? weekdays : [1];
+
+  for (let i = 1; i < sorted.length; i++) {
+    const expectedNext =
+      cadence === "daily" ? nextDay(sorted[i - 1]) : nextOccurrenceDate(days, sorted[i - 1]);
+    if (sorted[i] === expectedNext) {
+      curLength++;
+    } else {
+      curLength = 1;
+      curStart = sorted[i];
+    }
+    if (curLength > bestLength) {
+      bestLength = curLength;
+      bestStart = curStart;
+      bestEnd = sorted[i];
     }
   }
-  return best;
+
+  return { length: bestLength, startDate: bestStart, endDate: bestEnd };
 }
