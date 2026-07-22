@@ -3,16 +3,7 @@
 import { useActionState, useId, useState } from "react";
 import type { Task } from "@/lib/types";
 import type { TaskFormState } from "./actions";
-
-const WEEKDAYS = [
-  { value: 0, label: "Sun" },
-  { value: 1, label: "Mon" },
-  { value: 2, label: "Tue" },
-  { value: 3, label: "Wed" },
-  { value: 4, label: "Thu" },
-  { value: 5, label: "Fri" },
-  { value: 6, label: "Sat" },
-];
+import { WeekdayCheckboxes } from "@/components/weekday-checkboxes";
 
 // Yearly has no entry here on purpose -- the "Every" dropdown is hidden
 // for it per the confirmed design, and the interval silently defaults to
@@ -172,21 +163,8 @@ export function TaskForm({
 
       {repeatUnit === "week" && (
         <div className="flex flex-col gap-1">
-          <span className="text-[12px] text-muted">On</span>
-          <div className="flex justify-between gap-4">
-            {WEEKDAYS.map((day) => (
-              <label key={day.value} className="flex items-center gap-1 text-[13px] text-foreground">
-                <input
-                  type="checkbox"
-                  name="repeatWeekday"
-                  value={day.value}
-                  defaultChecked={initial?.repeat_weekdays?.includes(day.value)}
-                  className="h-4 w-4"
-                />
-                {day.label}
-              </label>
-            ))}
-          </div>
+          <label className="text-[12px] text-muted">On</label>
+          <WeekdayCheckboxes name="repeatWeekday" defaultValues={initial?.repeat_weekdays ?? []} />
         </div>
       )}
 

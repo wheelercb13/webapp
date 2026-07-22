@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { toggleStepCompletion } from "./actions";
-import { WEEKDAYS } from "./weekday-checkboxes";
+import { WEEKDAYS } from "@/components/weekday-checkboxes";
 
 export function StepWeekdayChips({
   routineId,

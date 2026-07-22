@@ -3,7 +3,7 @@
 import { useActionState, useId } from "react";
 import type { RoutineCadence, RoutineStep } from "@/lib/types";
 import type { StepFormState } from "./actions";
-import { WeekdayCheckboxes } from "./weekday-checkboxes";
+import { WeekdayCheckboxes } from "@/components/weekday-checkboxes";
 
 export function StepEditForm({
   action,
@@ -37,7 +37,7 @@ export function StepEditForm({
       {cadence === "weekly" && (
         <div className="flex flex-col gap-1">
           <label className="text-[12px] text-muted">Repeats on</label>
-          <WeekdayCheckboxes defaultValues={initial.weekdays ?? [1]} />
+          <WeekdayCheckboxes name="weekday" defaultValues={initial.weekdays ?? [1]} />
         </div>
       )}
 

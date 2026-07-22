@@ -8,14 +8,20 @@ export const WEEKDAYS = [
   { value: 6, label: "Saturday", short: "S" },
 ];
 
-export function WeekdayCheckboxes({ defaultValues }: { defaultValues: number[] }) {
+export function WeekdayCheckboxes({
+  name,
+  defaultValues,
+}: {
+  name: string;
+  defaultValues: number[];
+}) {
   return (
     <div className="flex gap-1.5">
       {WEEKDAYS.map((day) => (
         <label key={day.value} className="cursor-pointer" title={day.label}>
           <input
             type="checkbox"
-            name="weekday"
+            name={name}
             value={day.value}
             defaultChecked={defaultValues.includes(day.value)}
             className="peer sr-only"

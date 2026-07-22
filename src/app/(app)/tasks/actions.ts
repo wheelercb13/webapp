@@ -38,6 +38,11 @@ function parseRepeatFields(formData: FormData, due_date: string | null) {
     repeat_unit === "week"
       ? formData.getAll("repeatWeekday").map((v) => Number(v))
       : null;
+
+  if (repeat_unit === "week" && repeat_weekdays?.length === 0) {
+    return { error: "Select at least one day." } as const;
+  }
+
   const repeatEnds = formData.get("repeatEnds") as string;
   const repeat_until =
     repeatEnds === "on" ? (formData.get("repeatUntil") as string) || null : null;
